@@ -1,4 +1,4 @@
-name: my-workflow
+name: Bun dev
 jobs:
   my-job:
     name: my-job
@@ -9,6 +9,4 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       # run any `bun` or `bunx` command
-      - run: bun install
-      - run: bun index.ts
-      - run: bun run build
+      - run: bun dev
