@@ -21,7 +21,7 @@ export async function logCoffee(formData: FormData) {
 	// visited_at is optional in prompt extraction list, but DB has default now().
 	// We extract it if present, though UI task doesn't ask for input.
 	const visitedAtRaw = formData.get('visited_at') as string
-	
+
 	const rating = ratingRaw ? Number(ratingRaw) : null
 	const liked = likedRaw === 'on'
 

@@ -1,21 +1,41 @@
 'use client' // ¡Importante! Esto habilita useState y onClick
 
 import {useState} from 'react'
-import LogCafeForm from './LogCafeForm' // Asegúrate que el import coincida con lo que creó Junie
-import {Coffee, MapPin, Plus} from 'lucide-react' // Iconos bonitos
-
-// Definimos el tipo aquí o lo importamos de tus types
-type Cafe = {
-	id: string
-	name: string
-	address: string | null
-}
+import LogCafeForm from './LogCafeForm'
+import CreateCafeForm from './CreateCafeForm'
+import {Coffee, MapPin, Plus, Store} from 'lucide-react'
+import CafeSearch from './CafeSearch'
+import {getOrCreateCafe} from '@/app/actions/cafe'
+import {Cafe} from '@/types/database'
 
 export function CafeFeed({cafes}: { cafes: Cafe[] }) {
 	const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null)
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+	const handleCafeSelect = async (placeId: string, name: string, address: string) => {
+		try {
+			const cafe = await getOrCreateCafe(placeId, name, address)
+			setSelectedCafe(cafe)
+		} catch (error) {
+			console.error("Failed to select cafe:", error)
+		}
+	}
 
 	return (
 		<>
+			{/* Search Bar */}
+			<CafeSearch onSelect={handleCafeSelect}/>
+
+			<div className="flex justify-end mb-4">
+				<button
+					onClick={() => setIsCreateModalOpen(true)}
+					className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-bold transition flex items-center gap-2"
+				>
+					<Store size={16}/>
+					Add Cafe
+				</button>
+			</div>
+
 			{/* 1. La Grid de Cafeterías */}
 			<div className="grid gap-4">
 				{cafes.map((cafe) => (
@@ -74,6 +94,34 @@ export function CafeFeed({cafes}: { cafes: Cafe[] }) {
 								cafeName={selectedCafe.name}
 								// Truco: Pasamos una función para cerrar el modal al terminar
 								onSuccess={() => setSelectedCafe(null)}
+							/>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* 3. Create Cafe Modal */}
+			{isCreateModalOpen && (
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+					<div
+						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+						<div
+							className="flex justify-between items-center p-4 border-b border-gray-700 bg-[#14181c]">
+							<h3 className="font-bold text-lg">
+								Add New <span className="text-orange-400">Cafe</span>
+							</h3>
+							<button
+								onClick={() => setIsCreateModalOpen(false)}
+								className="text-gray-500 hover:text-white"
+							>
+								✕
+							</button>
+						</div>
+
+						<div className="p-4">
+							<CreateCafeForm
+								onSuccess={() => setIsCreateModalOpen(false)}
 							/>
 						</div>
 					</div>

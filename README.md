@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [
-`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Deem a Cup ☕
 
-## Getting Started
+A Next.js application for tracking and rating coffee visits.
 
-First, run the development server:
+## Overview
+
+Deem a Cup allows users to:
+
+- Authenticate via Supabase Auth.
+- View a list of available cafes.
+- Log visits to cafes with ratings (1-5 stars), reviews, and "liked" status.
+
+## Tech Stack
+
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **UI Library:** [React 19](https://react.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Database & Auth:** [Supabase](https://supabase.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Package Manager:** [Bun](https://bun.sh/)
+
+## Requirements
+
+- Node.js / Bun
+- A Supabase project
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Setup & Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url>
+   cd deem-a-cup
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   bun install
+   ```
+
+3. **Setup Database:**
+    - Run the SQL commands from `db_schema.sql` in your Supabase SQL Editor to create tables (`cafes`, `deems`) and
+      setup Row Level Security (RLS) policies.
+
+4. **Configure Environment:**
+    - Create `.env.local` and fill in your Supabase credentials.
+
+## Running the App
+
+Start the development server:
 
 ```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically
-optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `dev`: Runs `next dev` (Development mode).
+- `build`: Runs `next build` (Production build).
+- `start`: Runs `next start` (Production server).
+- `lint`: Runs `eslint` (Linting).
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app`: Next.js App Router pages and API routes.
+    - `actions`: Server Actions (e.g., `deem.ts` for logging visits).
+    - `auth`: Authentication routes (callback).
+    - `login`: Login page.
+- `src/components`: React components (e.g., `CafeFeed`, `LogCafeForm`).
+- `src/utils/supabase`: Supabase client configuration.
+- `db_schema.sql`: Database schema definition.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## TODOs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions
-are welcome!
+- [ ] **Tests:** Add unit and integration tests (currently missing).
+- [x] **Cafe Management:** Add UI/feature to create/add new cafes (currently relies on pre-populated DB or direct DB
+  inserts).
+- [x] **Google Places:** Integrate Google Places API for cafe search and details (implied by `place_id` in schema).
+- [ ] **CI/CD:** Setup deployment pipeline.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
-more details.
+Private / Proprietary.
