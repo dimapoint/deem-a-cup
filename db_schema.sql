@@ -24,7 +24,7 @@ create policy "Cafes can be inserted by authenticated users"
     on cafes for insert
     with check (auth.role() = 'authenticated');
 
--- Note: We might want updates too if details change, typically authenticated users or admin. 
+-- Note: We might want updates too if details change, typically authenticated users or admin.
 -- For now, sticking to 'Lectura pública' as requested, but Server Action needs write access.
 -- The server action usually runs with the user's session, so the user needs INSERT permission.
 -- The prompt said "Lectura pública". It implies write is restricted or internal.
@@ -42,7 +42,7 @@ create table deems
     id         uuid primary key         default gen_random_uuid(),
     user_id    uuid references auth.users not null,
     cafe_id    uuid references cafes (id) not null,
-    rating     integer check (rating >= 0 and rating <= 5), -- Assuming 0-5 or similar
+    rating     numeric(2,1) check (rating >= 0 and rating <= 5), -- Allow decimal values like 4.5
     review     text,
     visited_at timestamp with time zone default now(),
     liked      boolean                  default false,
