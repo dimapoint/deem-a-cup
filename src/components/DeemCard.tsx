@@ -1,15 +1,17 @@
 import {DeemWithDetails} from '@/app/actions/deem'
-import {Coffee, Heart, Star, User} from 'lucide-react'
+import {CoffeeRating} from '@/components/CoffeeRating'
+import {Coffee, Heart, User} from 'lucide-react'
 import Image from 'next/image'
 
 // Helper to format date
-const formatDate = (dateString: string) => {
-	const date = new Date(dateString)
+const formatDate = (value: string) => {
+	const [datePart] = value.split('T')
+	const [year, month, day] = datePart.split('-').map(Number)
+	const date = year && month && day ? new Date(year, month - 1, day) : new Date(value)
 	return new Intl.DateTimeFormat('es-ES', {
 		day: 'numeric',
 		month: 'short',
-		hour: '2-digit',
-		minute: '2-digit'
+		year: 'numeric'
 	}).format(date)
 }
 
@@ -57,9 +59,8 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 				{/* Rating */}
 				{deem.rating !== null && (
 					<div
-						className="flex items-center gap-1 bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
-						<Star size={14} className="text-yellow-500 fill-yellow-500"/>
-						<span className="text-sm font-bold text-gray-200">{deem.rating}</span>
+						className="flex items-center bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
+						<CoffeeRating rating={deem.rating} size="sm"/>
 					</div>
 				)}
 			</div>
