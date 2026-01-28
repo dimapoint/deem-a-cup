@@ -26,6 +26,7 @@ describe('LogCafeForm Component', () => {
 	it('renders correctly', () => {
 		render(<LogCafeForm cafeId="123" cafeName="Test Cafe"/>)
 		expect(screen.getByText('Log visit: Test Cafe')).toBeDefined()
+		expect(screen.getByLabelText('Date')).toBeDefined()
 		expect(screen.getByLabelText('Review')).toBeDefined()
 		expect(screen.getByLabelText('Like')).toBeDefined()
 	})
@@ -34,9 +35,14 @@ describe('LogCafeForm Component', () => {
 		const user = userEvent.setup()
 		render(<LogCafeForm cafeId="123" cafeName="Test Cafe"/>)
 
-		// Select Rating (3 stars)
-		const star3 = screen.getByTestId('star-2-full')
-		await user.click(star3)
+		// Select Rating (3 coffees)
+		const coffee3 = screen.getByTestId('coffee-2-full')
+		await user.click(coffee3)
+
+		// Select Date
+		const dateInput = screen.getByLabelText('Date')
+		await user.clear(dateInput)
+		await user.type(dateInput, '2025-01-15')
 
 		// Fill Review
 		const reviewInput = screen.getByLabelText('Review')
@@ -58,6 +64,7 @@ describe('LogCafeForm Component', () => {
 		const formData = vi.mocked(logCoffee).mock.calls[0][0] as FormData
 		expect(formData.get('cafe_id')).toBe('123')
 		expect(formData.get('rating')).toBe('3')
+		expect(formData.get('visited_at')).toBe('2025-01-15')
 		expect(formData.get('review')).toBe('Nice place!')
 		expect(formData.get('liked')).toBe('on')
 	})

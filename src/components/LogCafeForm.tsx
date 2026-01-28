@@ -3,12 +3,28 @@
 import {logCoffee} from '@/app/actions/deem'
 import {useState} from 'react'
 import {useFormStatus} from 'react-dom'
-import {Heart, Star, StarHalf} from 'lucide-react'
+import {CalendarDays, Heart} from 'lucide-react'
 
 interface LogCafeFormProps {
 	cafeId: string
 	cafeName: string
 	onSuccess?: () => void
+}
+
+const toDateInputValue = (date: Date) => {
+	const timezoneOffset = date.getTimezoneOffset() * 60000
+	return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10)
+}
+
+const formatDateLabel = (value: string) => {
+	if (!value) return 'Pick a date'
+	const [year, month, day] = value.split('-').map(Number)
+	if (!year || !month || !day) return 'Pick a date'
+	return new Intl.DateTimeFormat('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric'
+	}).format(new Date(year, month - 1, day))
 }
 
 function SubmitButton() {
@@ -29,13 +45,21 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 	const [rating, setRating] = useState(0)
 	const [hoverRating, setHoverRating] = useState(0)
 	const [liked, setLiked] = useState(false)
+	const [visitedAt, setVisitedAt] = useState(() => toDateInputValue(new Date()))
+	const today = new Date()
+	const yesterday = new Date()
+	yesterday.setDate(yesterday.getDate() - 1)
+	const todayValue = toDateInputValue(today)
+	const yesterdayValue = toDateInputValue(yesterday)
+	const cupClassName = 'absolute inset-0 flex items-center justify-center text-2xl leading-none'
+	const halfClipStyle = {clipPath: 'inset(0 50% 0 0)'}
 
-	const handleStarClick = (starIndex: number, isHalf: boolean) => {
-		setRating(isHalf ? starIndex + 0.5 : starIndex + 1)
+	const handleCoffeeClick = (cupIndex: number, isHalf: boolean) => {
+		setRating(isHalf ? cupIndex + 0.5 : cupIndex + 1)
 	}
 
-	const handleStarHover = (starIndex: number, isHalf: boolean) => {
-		setHoverRating(isHalf ? starIndex + 0.5 : starIndex + 1)
+	const handleCoffeeHover = (cupIndex: number, isHalf: boolean) => {
+		setHoverRating(isHalf ? cupIndex + 0.5 : cupIndex + 1)
 	}
 
 	const displayRating = hoverRating > 0 ? hoverRating : rating
@@ -49,7 +73,53 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 
 			<input type="hidden" name="cafe_id" value={cafeId}/>
 
-			{/* Star Rating */}
+			{/* Visit Date */}
+			<div className="flex flex-col gap-1">
+				<label htmlFor="visited_at" className="text-sm font-medium">Date</label>
+				<div className="flex flex-wrap items-center gap-2">
+					<div className="relative flex-1 min-w-[200px]">
+						<CalendarDays
+							size={16}
+							className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+						/>
+						<input
+							id="visited_at"
+							name="visited_at"
+							type="date"
+							value={visitedAt}
+							onChange={(event) => setVisitedAt(event.target.value)}
+							className="w-full rounded border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-200"
+						/>
+					</div>
+					<button
+						type="button"
+						onClick={() => setVisitedAt(todayValue)}
+						className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+							visitedAt === todayValue
+								? 'border-orange-400 text-orange-600'
+								: 'border-gray-300 text-gray-600 hover:border-gray-400'
+						}`}
+					>
+						Today
+					</button>
+					<button
+						type="button"
+						onClick={() => setVisitedAt(yesterdayValue)}
+						className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+							visitedAt === yesterdayValue
+								? 'border-orange-400 text-orange-600'
+								: 'border-gray-300 text-gray-600 hover:border-gray-400'
+						}`}
+					>
+						Yesterday
+					</button>
+				</div>
+				<p className="text-xs text-gray-500">
+					Selected: <span className="font-medium text-gray-700">{formatDateLabel(visitedAt)}</span>
+				</p>
+			</div>
+
+			{/* Coffee Rating */}
 			<div className="flex flex-col gap-1">
 				<label className="text-sm font-medium">Rating</label>
 				<div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
@@ -61,32 +131,26 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 							<div key={index} className="relative cursor-pointer w-8 h-8">
 								{/* Left half (0.5) */}
 								<div
-									data-testid={`star-${index}-half`}
+									data-testid={`coffee-${index}-half`}
 									className="absolute left-0 top-0 w-1/2 h-full z-10"
-									onClick={() => handleStarClick(index, true)}
-									onMouseEnter={() => handleStarHover(index, true)}
+									onClick={() => handleCoffeeClick(index, true)}
+									onMouseEnter={() => handleCoffeeHover(index, true)}
 								/>
 								{/* Right half (1.0) */}
 								<div
-									data-testid={`star-${index}-full`}
+									data-testid={`coffee-${index}-full`}
 									className="absolute right-0 top-0 w-1/2 h-full left-1/2 z-10"
-									onClick={() => handleStarClick(index, false)}
-									onMouseEnter={() => handleStarHover(index, false)}
+									onClick={() => handleCoffeeClick(index, false)}
+									onMouseEnter={() => handleCoffeeHover(index, false)}
 								/>
 
 								{/* Icon rendering */}
 								<div className="absolute inset-0 pointer-events-none">
-									{/* Background: Gray Star (always render as base) */}
-									<Star
-										className="absolute w-full h-full text-gray-300 fill-gray-300"/>
-
-									{/* Foreground: Yellow Star or Half Star */}
+									<span className={`${cupClassName} opacity-30`} aria-hidden="true">☕</span>
 									{filled ? (
-										<Star
-											className="absolute w-full h-full text-yellow-400 fill-yellow-400"/>
+										<span className={cupClassName} aria-hidden="true">☕</span>
 									) : halfFilled ? (
-										<StarHalf
-											className="absolute w-full h-full text-yellow-400 fill-yellow-400"/>
+										<span className={cupClassName} style={halfClipStyle} aria-hidden="true">☕</span>
 									) : null}
 								</div>
 							</div>

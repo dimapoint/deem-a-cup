@@ -2,7 +2,7 @@
 create extension if not exists "uuid-ossp";
 
 -- 1. Table: profiles (Public user data) - Must be first for FKs
-create table profiles
+create table if not exists profiles
 (
     id         uuid references auth.users on delete cascade not null primary key,
     updated_at timestamp with time zone,
@@ -10,21 +10,26 @@ create table profiles
     full_name  text,
     avatar_url text,
     website    text,
+    favorite_cafe_ids uuid[],
 
-    constraint username_length check (char_length(username) >= 3)
+    constraint username_length check (char_length(username) >= 3),
+    constraint favorite_cafe_ids_length check (coalesce(array_length(favorite_cafe_ids, 1), 0) <= 3)
 );
 
 alter table profiles
     enable row level security;
 
+drop policy if exists "Public profiles are viewable by everyone." on profiles;
 create policy "Public profiles are viewable by everyone."
     on profiles for select
     using (true);
 
+drop policy if exists "Users can insert their own profile." on profiles;
 create policy "Users can insert their own profile."
     on profiles for insert
     with check (auth.uid() = id);
 
+drop policy if exists "Users can update own profile." on profiles;
 create policy "Users can update own profile."
     on profiles for update
     using (auth.uid() = id);
@@ -56,7 +61,7 @@ on conflict (id) do nothing;
 
 
 -- 2. Table: cafes
-create table cafes
+create table if not exists cafes
 (
     id          uuid primary key         default gen_random_uuid(),
     name        text not null,
@@ -70,21 +75,24 @@ create table cafes
 alter table cafes
     enable row level security;
 
+drop policy if exists "Cafes are viewable by everyone" on cafes;
 create policy "Cafes are viewable by everyone"
     on cafes for select
     using (true);
 
+drop policy if exists "Cafes can be inserted by authenticated users" on cafes;
 create policy "Cafes can be inserted by authenticated users"
     on cafes for insert
     with check (auth.role() = 'authenticated');
 
+drop policy if exists "Cafes can be updated by authenticated users" on cafes;
 create policy "Cafes can be updated by authenticated users"
     on cafes for update
     using (auth.role() = 'authenticated');
 
 
 -- 3. Table: deems
-create table deems
+create table if not exists deems
 (
     id         uuid primary key         default gen_random_uuid(),
     user_id    uuid references profiles (id) not null, -- Changed to reference profiles
@@ -100,18 +108,22 @@ create table deems
 alter table deems
     enable row level security;
 
+drop policy if exists "Deems are viewable by everyone" on deems;
 create policy "Deems are viewable by everyone"
     on deems for select
     using (true);
 
+drop policy if exists "Users can insert their own deems" on deems;
 create policy "Users can insert their own deems"
     on deems for insert
     with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update their own deems" on deems;
 create policy "Users can update their own deems"
     on deems for update
     using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete their own deems" on deems;
 create policy "Users can delete their own deems"
     on deems for delete
     using (auth.uid() = user_id);

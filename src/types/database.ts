@@ -50,6 +50,7 @@ export interface Profile {
 	full_name: string | null
 	avatar_url: string | null
 	website: string | null
+	favorite_cafe_ids: string[] | null
 }
 
 export interface ProfileInsert {
@@ -59,4 +60,5 @@ export interface ProfileInsert {
 	full_name?: string
 	avatar_url?: string
 	website?: string
+	favorite_cafe_ids?: string[] | null
 }
