@@ -2,6 +2,7 @@ import {DeemWithDetails} from '@/app/actions/deem'
 import {CoffeeRating} from '@/components/CoffeeRating'
 import {Coffee, Heart, User} from 'lucide-react'
 import Image from 'next/image'
+import WatchlistButton from '@/components/WatchlistButton'
 
 // Helper to format date
 const formatDate = (value: string) => {
@@ -86,9 +87,12 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 
 			{/* Footer: Cafe Address (Context) */}
 			<div
-				className="mt-2 pt-3 border-t border-gray-800/50 flex items-center gap-2 text-xs text-gray-500">
-				<Coffee size={12}/>
-				<span>{cafe.address}</span>
+				className="mt-2 pt-3 border-t border-gray-800/50 flex items-center justify-between text-xs text-gray-500">
+				<div className="flex items-center gap-2">
+					<Coffee size={12}/>
+					<span>{cafe.address}</span>
+				</div>
+				<WatchlistButton cafeId={cafe.id} initialIsSaved={cafe.isSaved} />
 			</div>
 		</div>
 	)

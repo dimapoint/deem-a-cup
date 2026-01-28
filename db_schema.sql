@@ -127,3 +127,32 @@ drop policy if exists "Users can delete their own deems" on deems;
 create policy "Users can delete their own deems"
     on deems for delete
     using (auth.uid() = user_id);
+
+
+-- 4. Table: watchlist
+create table if not exists watchlist
+(
+    user_id    uuid references auth.users on delete cascade not null,
+    cafe_id    uuid references cafes (id) on delete cascade not null,
+    created_at timestamp with time zone default now(),
+    primary key (user_id, cafe_id)
+);
+
+-- RLS for watchlist
+alter table watchlist
+    enable row level security;
+
+drop policy if exists "Watchlists are viewable by everyone" on watchlist;
+create policy "Watchlists are viewable by everyone"
+    on watchlist for select
+    using (true);
+
+drop policy if exists "Users can insert into their own watchlist" on watchlist;
+create policy "Users can insert into their own watchlist"
+    on watchlist for insert
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete from their own watchlist" on watchlist;
+create policy "Users can delete from their own watchlist"
+    on watchlist for delete
+    using (auth.uid() = user_id);

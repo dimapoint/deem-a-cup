@@ -53,6 +53,7 @@ export type DeemWithDetails = {
 		name: string
 		place_id: string
 		address: string | null
+		isSaved: boolean
 	}
 	profile: {
 		full_name: string | null
@@ -85,11 +86,27 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 		const cafeIds = Array.from(new Set(deems.map((d: any) => d.cafe_id)))
 		const userIds = Array.from(new Set(deems.map((d: any) => d.user_id)))
 
-		// 3. Fetch related data in parallel
-		const [cafesResult, profilesResult] = await Promise.all([
+		// 3. Fetch related data in parallel (including watchlist)
+		const {data: {user}} = await supabase.auth.getUser()
+		
+		const promises: Promise<any>[] = [
 			supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
 			supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds)
-		])
+		]
+
+		if (user) {
+			promises.push(
+				supabase.from('watchlist')
+					.select('cafe_id')
+					.eq('user_id', user.id)
+					.in('cafe_id', cafeIds)
+			)
+		}
+
+		const results = await Promise.all(promises)
+		const cafesResult = results[0]
+		const profilesResult = results[1]
+		const watchlistResult = user ? results[2] : { data: [] }
 
 		if (cafesResult.error) {
 			console.error('Error fetching cafes:', cafesResult.error)
@@ -100,6 +117,8 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 
 		const cafes = cafesResult.data || []
 		const profiles = profilesResult.data || []
+		const watchlist = watchlistResult.data || []
+		const watchlistSet = new Set(watchlist.map((w: any) => w.cafe_id))
 
 		// 4. Map data back to deems
 		const cafeMap = new Map(cafes.map((c: any) => [c.id, c]))
@@ -113,11 +132,15 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 			// fallback
 			return {
 				...deem,
-				cafe: cafe || {
+				cafe: cafe ? {
+					...cafe,
+					isSaved: watchlistSet.has(cafe.id)
+				} : {
 					id: deem.cafe_id,
 					name: 'Unknown Cafe',
 					place_id: '',
-					address: null
+					address: null,
+					isSaved: false
 				},
 				profile: profile || {
 					full_name: 'Unknown User',

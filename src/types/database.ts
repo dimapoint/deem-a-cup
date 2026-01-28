@@ -26,6 +26,12 @@ export interface Deem {
 	created_at: string
 }
 
+export interface Watchlist {
+	user_id: string
+	cafe_id: string
+	created_at: string
+}
+
 // Helper types for Insert operations (useful for Server Actions)
 export interface CafeInsert {
 	name: string
@@ -41,6 +47,12 @@ export interface DeemInsert {
 	review?: string | null
 	visited_at?: string
 	liked?: boolean
+}
+
+export interface WatchlistInsert {
+	user_id: string
+	cafe_id: string
+	created_at?: string
 }
 
 export interface Profile {
