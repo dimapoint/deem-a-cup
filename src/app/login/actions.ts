@@ -49,5 +49,5 @@ export async function signup(formData: FormData) {
 	}
 
 	revalidatePath('/', 'layout')
-	redirect('/')
+	redirect('/login?notice=confirm-email')
 }
