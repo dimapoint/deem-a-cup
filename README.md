@@ -18,6 +18,7 @@ Deem a Cup allows users to:
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
 - **Database & Auth:** [Supabase](https://supabase.com/)
 - **Icons:** [Lucide React](https://lucide.dev/)
+- **Testing:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
 - **Package Manager:** [Bun](https://bun.sh/)
 
 ## Requirements
@@ -70,6 +71,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 - `build`: Runs `next build` (Production build).
 - `start`: Runs `next start` (Production server).
 - `lint`: Runs `eslint` (Linting).
+- `test`: Runs `vitest` (Unit & Integration tests).
 
 ## Project Structure
 
@@ -83,7 +85,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 ## TODOs
 
-- [ ] **Tests:** Add unit and integration tests (currently missing).
+- [x] **Tests:** Add unit and integration tests.
 - [x] **Cafe Management:** Add UI/feature to create/add new cafes (currently relies on pre-populated DB or direct DB
   inserts).
 - [x] **Google Places:** Integrate Google Places API for cafe search and details (implied by `place_id` in schema).

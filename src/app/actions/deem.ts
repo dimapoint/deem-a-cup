@@ -1,6 +1,7 @@
 'use server'
 
 import {createClient} from '@/utils/supabase/server'
+import type {Cafe, Deem, Profile, Watchlist} from '@/types/database'
 import {revalidatePath} from 'next/cache'
 
 export async function logCoffee(formData: FormData) {
@@ -62,12 +63,17 @@ export type DeemWithDetails = {
 	}
 }
 
+type CafeSummary = Pick<Cafe, 'id' | 'name' | 'place_id' | 'address'>
+type ProfileSummary = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url'>
+type WatchlistCafe = Pick<Watchlist, 'cafe_id'>
+type QueryResult<T> = {data: T[] | null; error: unknown}
+
 export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 	const supabase = await createClient()
 
 	try {
 		// 1. Fetch Deems first
-		const {data: deems, error: deemsError} = await supabase
+		const {data: deemsData, error: deemsError} = await supabase
 			.from('deems')
 			.select('*')
 			.order('created_at', {ascending: false})
@@ -78,18 +84,20 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 			return []
 		}
 
-		if (!deems || deems.length === 0) {
+		const deems = (deemsData ?? []) as Deem[]
+
+		if (deems.length === 0) {
 			return []
 		}
 
 		// 2. Extract IDs for batch fetching
-		const cafeIds = Array.from(new Set(deems.map((d: any) => d.cafe_id)))
-		const userIds = Array.from(new Set(deems.map((d: any) => d.user_id)))
+		const cafeIds = Array.from(new Set(deems.map((deem) => deem.cafe_id)))
+		const userIds = Array.from(new Set(deems.map((deem) => deem.user_id)))
 
 		// 3. Fetch related data in parallel (including watchlist)
 		const {data: {user}} = await supabase.auth.getUser()
 
-		const promises: Promise<any>[] = [
+		const promises: Array<PromiseLike<QueryResult<unknown>>> = [
 			supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
 			supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds)
 		]
@@ -104,9 +112,12 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 		}
 
 		const results = await Promise.all(promises)
-		const cafesResult = results[0]
-		const profilesResult = results[1]
-		const watchlistResult = user ? results[2] : {data: []}
+		const cafesResult = results[0] as QueryResult<CafeSummary>
+		const profilesResult = results[1] as QueryResult<ProfileSummary>
+		const watchlistResult: QueryResult<WatchlistCafe> = user ? (results[2] as QueryResult<WatchlistCafe>) : {
+			data: [],
+			error: null
+		}
 
 		if (cafesResult.error) {
 			console.error('Error fetching cafes:', cafesResult.error)
@@ -115,16 +126,16 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 			console.error('Error fetching profiles:', profilesResult.error)
 		}
 
-		const cafes = cafesResult.data || []
-		const profiles = profilesResult.data || []
-		const watchlist = watchlistResult.data || []
-		const watchlistSet = new Set(watchlist.map((w: any) => w.cafe_id))
+		const cafes = cafesResult.data ?? []
+		const profiles = profilesResult.data ?? []
+		const watchlist = watchlistResult.data ?? []
+		const watchlistSet = new Set(watchlist.map((w) => w.cafe_id))
 
 		// 4. Map data back to deems
-		const cafeMap = new Map(cafes.map((c: any) => [c.id, c]))
-		const profileMap = new Map(profiles.map((p: any) => [p.id, p]))
+		const cafeMap = new Map(cafes.map((c) => [c.id, c]))
+		const profileMap = new Map(profiles.map((p) => [p.id, p]))
 
-		const deemsWithDetails = deems.map((deem: any) => {
+		const deemsWithDetails = deems.map((deem) => {
 			const cafe = cafeMap.get(deem.cafe_id)
 			const profile = profileMap.get(deem.user_id)
 
