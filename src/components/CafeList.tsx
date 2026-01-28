@@ -37,7 +37,7 @@ export default function CafeList({cafes}: CafeListProps) {
 
 				{(!cafes || cafes.length === 0) && (
 					<p className="text-gray-500 italic">
-						No hay cafeterías en la base de datos aún.
+						No cafes in the database yet.
 					</p>
 				)}
 			</div>

@@ -8,7 +8,7 @@ const formatDate = (value: string) => {
 	const [datePart] = value.split('T')
 	const [year, month, day] = datePart.split('-').map(Number)
 	const date = year && month && day ? new Date(year, month - 1, day) : new Date(value)
-	return new Intl.DateTimeFormat('es-ES', {
+	return new Intl.DateTimeFormat('en-US', {
 		day: 'numeric',
 		month: 'short',
 		year: 'numeric'
@@ -41,7 +41,7 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 					<div>
 						<div className="flex items-baseline gap-2">
 							<span className="font-bold text-gray-200">
-								{profile?.full_name || profile?.username || 'Anónimo'}
+								{profile?.full_name || profile?.username || 'Anonymous'}
 							</span>
 							<span className="text-xs text-gray-500">
 								visited

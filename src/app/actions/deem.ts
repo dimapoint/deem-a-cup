@@ -11,7 +11,7 @@ export async function logCoffee(formData: FormData) {
 	} = await supabase.auth.getUser()
 
 	if (!user) {
-		throw new Error('Debes iniciar sesión para loguear una visita')
+		throw new Error('You must be logged in to log a visit')
 	}
 
 	const cafe_id = formData.get('cafe_id') as string
@@ -34,7 +34,7 @@ export async function logCoffee(formData: FormData) {
 
 	if (error) {
 		console.error('Error logging coffee:', error)
-		throw new Error('Error al guardar la visita')
+		throw new Error('Error saving visit')
 	}
 
 	revalidatePath('/')

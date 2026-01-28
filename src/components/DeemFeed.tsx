@@ -5,8 +5,8 @@ export function DeemFeed({deems}: { deems: DeemWithDetails[] }) {
 	if (deems.length === 0) {
 		return (
 			<div className="text-center py-10 text-gray-500">
-				<p>No hay actividad reciente.</p>
-				<p className="text-sm">¡Sé el primero en loguear un café!</p>
+				<p>No recent activity.</p>
+				<p className="text-sm">Be the first to log a coffee!</p>
 			</div>
 		)
 	}

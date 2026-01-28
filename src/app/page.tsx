@@ -6,13 +6,13 @@ import {getRecentDeems} from '@/app/actions/deem'
 export default async function Home() {
 	const supabase = await createClient()
 
-	// 1. Verificamos sesión (opcional, si quieres que sea privado)
+	// 1. Check session (optional, if you want it to be private)
 	const {data: {user}} = await supabase.auth.getUser()
 	if (!user) {
 		redirect('/login')
 	}
 
-	// 2. Pedimos los datos
+	// 2. Fetch data
 	const deems = await getRecentDeems()
 
 	return (

@@ -16,7 +16,7 @@ const LoginPage = ({searchParams}: LoginPageProps) => {
 	const errorParam = getParamValue(searchParams?.error)
 	const noticeMessage =
 		noticeParam === 'confirm-email'
-			? 'Debes confirmar tu email antes de iniciar sesion.'
+			? 'You must confirm your email before logging in.'
 			: null
 	const errorMessage = errorParam ?? null
 

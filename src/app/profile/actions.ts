@@ -16,7 +16,7 @@ export async function updateFavoriteCafes(formData: FormData) {
 
 	const {data: {user}} = await supabase.auth.getUser()
 	if (!user) {
-		throw new Error('Debes iniciar sesion para actualizar tus cafeterias favoritas')
+		throw new Error('You must be logged in to update your favorite cafes')
 	}
 
 	const requestedIds = sanitizeFavoriteIds([
@@ -34,7 +34,7 @@ export async function updateFavoriteCafes(formData: FormData) {
 
 		if (error) {
 			console.error('Error validating favorite cafes:', error)
-			throw new Error('Error al guardar tus cafeterias favoritas')
+			throw new Error('Error saving your favorite cafes')
 		}
 
 		const validIds = new Set((cafes ?? []).map((cafe) => cafe.id))
@@ -48,7 +48,7 @@ export async function updateFavoriteCafes(formData: FormData) {
 
 	if (error) {
 		console.error('Error updating favorite cafes:', error)
-		throw new Error('Error al guardar tus cafeterias favoritas')
+		throw new Error('Error saving your favorite cafes')
 	}
 
 	revalidatePath('/profile')

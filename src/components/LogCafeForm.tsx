@@ -36,7 +36,7 @@ function SubmitButton() {
 			disabled={pending}
 			className="w-full rounded bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-50"
 		>
-			{pending ? 'Guardando...' : 'Guardar'}
+			{pending ? 'Saving...' : 'Save'}
 		</button>
 	)
 }
@@ -171,7 +171,7 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 					name="review"
 					className="rounded border border-gray-300 p-2 text-sm"
 					rows={3}
-					placeholder="¿Qué tal estuvo?"
+					placeholder="How was it?"
 				/>
 			</div>
 
