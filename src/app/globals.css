@@ -3,6 +3,9 @@
 :root {
     --background: #ffffff;
     --foreground: #171717;
+    /* Provide defaults so @theme references resolve before Next.js font classes load */
+    --font-geist-sans: ui-sans-serif;
+    --font-geist-mono: ui-monospace;
 }
 
 @theme inline {
