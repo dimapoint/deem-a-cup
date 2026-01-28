@@ -27,7 +27,7 @@ describe('LogCafeForm Component', () => {
 		render(<LogCafeForm cafeId="123" cafeName="Test Cafe"/>)
 		expect(screen.getByText('Log visit: Test Cafe')).toBeDefined()
 		expect(screen.getByLabelText('Review')).toBeDefined()
-		expect(screen.getByLabelText('Liked')).toBeDefined()
+		expect(screen.getByLabelText('Like')).toBeDefined()
 	})
 
 	it('submits the form with correct data', async () => {
@@ -35,15 +35,15 @@ describe('LogCafeForm Component', () => {
 		render(<LogCafeForm cafeId="123" cafeName="Test Cafe"/>)
 
 		// Select Rating (3 stars)
-		const stars = screen.getAllByText('★')
-		await user.click(stars[2])
+		const star3 = screen.getByTestId('star-2-full')
+		await user.click(star3)
 
 		// Fill Review
 		const reviewInput = screen.getByLabelText('Review')
 		await user.type(reviewInput, 'Nice place!')
 
 		// Check Liked
-		const likedCheckbox = screen.getByLabelText('Liked')
+		const likedCheckbox = screen.getByLabelText('Like')
 		await user.click(likedCheckbox)
 
 		// Submit

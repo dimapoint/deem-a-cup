@@ -1,14 +1,16 @@
-'use client' // ¡Importante! Esto habilita useState y onClick
+'use client'
 
 import {useState} from 'react'
 import LogCafeForm from './LogCafeForm'
 import CreateCafeForm from './CreateCafeForm'
-import {Coffee, MapPin, Plus, Store} from 'lucide-react'
+import {Store} from 'lucide-react'
 import CafeSearch from './CafeSearch'
 import {getOrCreateCafe} from '@/app/actions/cafe'
 import {Cafe} from '@/types/database'
+import {DeemWithDetails} from '@/app/actions/deem'
+import {DeemFeed} from './DeemFeed'
 
-export function CafeFeed({cafes}: { cafes: Cafe[] }) {
+export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 	const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null)
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
@@ -23,61 +25,39 @@ export function CafeFeed({cafes}: { cafes: Cafe[] }) {
 
 	return (
 		<>
-			{/* Search Bar */}
-			<CafeSearch onSelect={handleCafeSelect}/>
-
-			<div className="flex justify-end mb-4">
+			{/* Search Bar & Actions */}
+			<div className="flex flex-col md:flex-row gap-4 mb-8">
+				<div className="flex-grow">
+					<CafeSearch onSelect={handleCafeSelect}/>
+				</div>
 				<button
 					onClick={() => setIsCreateModalOpen(true)}
-					className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-bold transition flex items-center gap-2"
+					className="bg-[#1e232b] hover:bg-[#2a303b] border border-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 h-[42px] whitespace-nowrap"
 				>
 					<Store size={16}/>
-					Add Cafe
+					Add Custom Cafe
 				</button>
 			</div>
 
-			{/* 1. La Grid de Cafeterías */}
-			<div className="grid gap-4">
-				{cafes.map((cafe) => (
-					<div
-						key={cafe.id}
-						className="bg-[#1e232b] p-4 rounded-lg border border-gray-700 hover:border-orange-500/50 transition flex justify-between items-center group"
-					>
-						<div>
-							<h3 className="font-bold text-lg text-gray-200 group-hover:text-orange-400 transition flex items-center gap-2">
-								<Coffee size={18}/>
-								{cafe.name}
-							</h3>
-							<p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-								<MapPin size={14}/>
-								{cafe.address}
-							</p>
-						</div>
+			{/* Activity Feed */}
+			<section>
+				<h2 className="text-xl font-bold mb-6 text-gray-400 uppercase tracking-wider text-xs border-b border-gray-800 pb-2">
+					Recent Activity
+				</h2>
+				<DeemFeed deems={deems}/>
+			</section>
 
-						<button
-							onClick={() => setSelectedCafe(cafe)} // AQUÍ abrimos el modal
-							className="bg-gray-800 hover:bg-green-600 hover:text-white text-gray-300 px-4 py-2 rounded-md text-sm font-bold transition flex items-center gap-2"
-						>
-							<Plus size={16}/>
-							Log
-						</button>
-					</div>
-				))}
-			</div>
-
-			{/* 2. El Modal (Dialog) Nativo */}
+			{/* Log Modal */}
 			{selectedCafe && (
 				<div
 					className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
 					<div
 						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
 
-						{/* Header del Modal */}
 						<div
 							className="flex justify-between items-center p-4 border-b border-gray-700 bg-[#14181c]">
 							<h3 className="font-bold text-lg">
-								Logueando <span
-								className="text-orange-400">{selectedCafe.name}</span>
+								Log <span className="text-orange-400">{selectedCafe.name}</span>
 							</h3>
 							<button
 								onClick={() => setSelectedCafe(null)}
@@ -87,12 +67,10 @@ export function CafeFeed({cafes}: { cafes: Cafe[] }) {
 							</button>
 						</div>
 
-						{/* El Formulario que hizo Junie */}
 						<div className="p-4">
 							<LogCafeForm
 								cafeId={selectedCafe.id}
 								cafeName={selectedCafe.name}
-								// Truco: Pasamos una función para cerrar el modal al terminar
 								onSuccess={() => setSelectedCafe(null)}
 							/>
 						</div>
@@ -100,7 +78,7 @@ export function CafeFeed({cafes}: { cafes: Cafe[] }) {
 				</div>
 			)}
 
-			{/* 3. Create Cafe Modal */}
+			{/* Create Cafe Modal */}
 			{isCreateModalOpen && (
 				<div
 					className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">

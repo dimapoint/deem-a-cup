@@ -3,7 +3,7 @@
 import {logCoffee} from '@/app/actions/deem'
 import {useState} from 'react'
 import {useFormStatus} from 'react-dom'
-import {Star, StarHalf, Heart} from 'lucide-react'
+import {Heart, Star, StarHalf} from 'lucide-react'
 
 interface LogCafeFormProps {
 	cafeId: string
@@ -61,27 +61,32 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 							<div key={index} className="relative cursor-pointer w-8 h-8">
 								{/* Left half (0.5) */}
 								<div
+									data-testid={`star-${index}-half`}
 									className="absolute left-0 top-0 w-1/2 h-full z-10"
 									onClick={() => handleStarClick(index, true)}
 									onMouseEnter={() => handleStarHover(index, true)}
 								/>
 								{/* Right half (1.0) */}
 								<div
+									data-testid={`star-${index}-full`}
 									className="absolute right-0 top-0 w-1/2 h-full left-1/2 z-10"
 									onClick={() => handleStarClick(index, false)}
 									onMouseEnter={() => handleStarHover(index, false)}
 								/>
-								
+
 								{/* Icon rendering */}
 								<div className="absolute inset-0 pointer-events-none">
 									{/* Background: Gray Star (always render as base) */}
-									<Star className="absolute w-full h-full text-gray-300 fill-gray-300" />
-									
+									<Star
+										className="absolute w-full h-full text-gray-300 fill-gray-300"/>
+
 									{/* Foreground: Yellow Star or Half Star */}
 									{filled ? (
-										<Star className="absolute w-full h-full text-yellow-400 fill-yellow-400" />
+										<Star
+											className="absolute w-full h-full text-yellow-400 fill-yellow-400"/>
 									) : halfFilled ? (
-										<StarHalf className="absolute w-full h-full text-yellow-400 fill-yellow-400" />
+										<StarHalf
+											className="absolute w-full h-full text-yellow-400 fill-yellow-400"/>
 									) : null}
 								</div>
 							</div>

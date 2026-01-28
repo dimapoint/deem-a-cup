@@ -1,6 +1,7 @@
 import {createClient} from '@/utils/supabase/server'
-import {CafeFeed} from '@/components/CafeFeed'
+import {Dashboard} from '@/components/Dashboard'
 import {redirect} from 'next/navigation'
+import {getRecentDeems} from '@/app/actions/deem'
 
 export default async function Home() {
 	const supabase = await createClient()
@@ -12,10 +13,7 @@ export default async function Home() {
 	}
 
 	// 2. Pedimos los datos
-	const {data: cafes} = await supabase
-		.from('cafes')
-		.select('*')
-		.order('created_at', {ascending: false})
+	const deems = await getRecentDeems()
 
 	return (
 		<main className="min-h-screen bg-[#14181c] text-gray-100 p-4 md:p-8">
@@ -25,17 +23,12 @@ export default async function Home() {
 						<h1 className="text-4xl font-bold tracking-tighter text-white">
 							Deem a Cup <span className="text-orange-500">☕</span>
 						</h1>
-						<p className="text-gray-500 mt-2">Bienvenido, {user.email}</p>
+						<p className="text-gray-500 mt-2">Bienvenido</p>
 					</div>
+					{/* Optional: Add Profile Link here */}
 				</header>
 
-				<section>
-					<h2 className="text-xl font-bold mb-4 text-gray-400 uppercase tracking-wider text-sm">
-						Cafeterías Disponibles
-					</h2>
-					{/* Aquí inyectamos el componente interactivo */}
-					<CafeFeed cafes={cafes || []}/>
-				</section>
+				<Dashboard deems={deems}/>
 			</div>
 		</main>
 	)

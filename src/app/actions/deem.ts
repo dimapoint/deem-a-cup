@@ -18,8 +18,6 @@ export async function logCoffee(formData: FormData) {
 	const ratingRaw = formData.get('rating')
 	const review = formData.get('review') as string
 	const likedRaw = formData.get('liked')
-	// visited_at is optional in prompt extraction list, but DB has default now().
-	// We extract it if present, though UI task doesn't ask for input.
 	const visitedAtRaw = formData.get('visited_at') as string
 
 	const rating = ratingRaw ? Number(ratingRaw) : null
@@ -31,7 +29,7 @@ export async function logCoffee(formData: FormData) {
 		rating,
 		review,
 		liked,
-		visited_at: visitedAtRaw || undefined // Let DB default to now() if undefined
+		visited_at: visitedAtRaw || undefined
 	})
 
 	if (error) {
@@ -40,4 +38,99 @@ export async function logCoffee(formData: FormData) {
 	}
 
 	revalidatePath('/')
+}
+
+export type DeemWithDetails = {
+	id: string
+	rating: number | null
+	review: string | null
+	liked: boolean | null
+	visited_at: string
+	created_at: string
+	user_id: string
+	cafe: {
+		id: string
+		name: string
+		place_id: string
+		address: string | null
+	}
+	profile: {
+		full_name: string | null
+		username: string | null
+		avatar_url: string | null
+	}
+}
+
+export async function getRecentDeems(): Promise<DeemWithDetails[]> {
+	const supabase = await createClient()
+
+	try {
+		// 1. Fetch Deems first
+		const {data: deems, error: deemsError} = await supabase
+			.from('deems')
+			.select('*')
+			.order('created_at', {ascending: false})
+			.limit(20)
+
+		if (deemsError) {
+			console.error('Error fetching deems table:', deemsError)
+			return []
+		}
+
+		if (!deems || deems.length === 0) {
+			return []
+		}
+
+		// 2. Extract IDs for batch fetching
+		const cafeIds = Array.from(new Set(deems.map((d: any) => d.cafe_id)))
+		const userIds = Array.from(new Set(deems.map((d: any) => d.user_id)))
+
+		// 3. Fetch related data in parallel
+		const [cafesResult, profilesResult] = await Promise.all([
+			supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
+			supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds)
+		])
+
+		if (cafesResult.error) {
+			console.error('Error fetching cafes:', cafesResult.error)
+		}
+		if (profilesResult.error) {
+			console.error('Error fetching profiles:', profilesResult.error)
+		}
+
+		const cafes = cafesResult.data || []
+		const profiles = profilesResult.data || []
+
+		// 4. Map data back to deems
+		const cafeMap = new Map(cafes.map((c: any) => [c.id, c]))
+		const profileMap = new Map(profiles.map((p: any) => [p.id, p]))
+
+		const deemsWithDetails = deems.map((deem: any) => {
+			const cafe = cafeMap.get(deem.cafe_id)
+			const profile = profileMap.get(deem.user_id)
+
+			// If for some reason the relation is missing (shouldn't happen with FKs), provide
+			// fallback
+			return {
+				...deem,
+				cafe: cafe || {
+					id: deem.cafe_id,
+					name: 'Unknown Cafe',
+					place_id: '',
+					address: null
+				},
+				profile: profile || {
+					full_name: 'Unknown User',
+					username: 'unknown',
+					avatar_url: null
+				}
+			}
+		})
+
+		return deemsWithDetails as DeemWithDetails[]
+
+	} catch (e) {
+		console.error('Unexpected error in getRecentDeems:', e)
+		return []
+	}
 }
