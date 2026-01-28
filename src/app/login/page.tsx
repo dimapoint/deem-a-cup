@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import {login, signup} from './actions'
 
 export default function LoginPage() {
@@ -49,6 +50,12 @@ export default function LoginPage() {
 					>
 						Sign Up
 					</button>
+					<Link
+						href="/sitemap.xml"
+						className="flex items-center justify-center rounded-md border border-gray-800 bg-gray-950 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+					>
+						View Sitemap
+					</Link>
 				</div>
 			</form>
 		</div>

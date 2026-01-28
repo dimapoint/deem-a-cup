@@ -3,6 +3,7 @@
 import {logCoffee} from '@/app/actions/deem'
 import {useState} from 'react'
 import {useFormStatus} from 'react-dom'
+import {Star, StarHalf, Heart} from 'lucide-react'
 
 interface LogCafeFormProps {
 	cafeId: string
@@ -26,21 +27,22 @@ function SubmitButton() {
 
 export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormProps) {
 	const [rating, setRating] = useState(0)
+	const [hoverRating, setHoverRating] = useState(0)
+	const [liked, setLiked] = useState(false)
 
-	// We wrap the server action to handle success/close if needed,
-	// but strictly following the prompt, we just need action={logCoffee}.
-	// However, to close the modal, we usually intercept the action or use a separate effect.
-	// Since useFormStatus is inside the form, we can't easily detect success *after* submit here
-	// without useActionState.
-	// But the prompt just asks for the form structure.
-	// I'll stick to action={logCoffee} directly as requested,
-	// but maybe wrap it to call onSuccess if provided?
-	// Let's stick to the simplest requirement first: use action={logCoffee}.
+	const handleStarClick = (starIndex: number, isHalf: boolean) => {
+		setRating(isHalf ? starIndex + 0.5 : starIndex + 1)
+	}
+
+	const handleStarHover = (starIndex: number, isHalf: boolean) => {
+		setHoverRating(isHalf ? starIndex + 0.5 : starIndex + 1)
+	}
+
+	const displayRating = hoverRating > 0 ? hoverRating : rating
 
 	return (
 		<form action={async (formData) => {
 			await logCoffee(formData)
-			// Simple way to close modal after action completes (if onSuccess provided)
 			if (onSuccess) onSuccess()
 		}} className="flex flex-col gap-4 p-4 text-black bg-white rounded-lg">
 			<h2 className="text-xl font-bold">Log visit: {cafeName}</h2>
@@ -50,19 +52,44 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 			{/* Star Rating */}
 			<div className="flex flex-col gap-1">
 				<label className="text-sm font-medium">Rating</label>
-				<div className="flex gap-1">
-					{[1, 2, 3, 4, 5].map((star) => (
-						<button
-							key={star}
-							type="button"
-							onClick={() => setRating(star)}
-							className={`text-2xl ${
-								star <= rating ? 'text-yellow-400' : 'text-gray-300'
-							}`}
-						>
-							★
-						</button>
-					))}
+				<div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
+					{[0, 1, 2, 3, 4].map((index) => {
+						const filled = displayRating >= index + 1
+						const halfFilled = displayRating >= index + 0.5 && !filled
+
+						return (
+							<div key={index} className="relative cursor-pointer w-8 h-8">
+								{/* Left half (0.5) */}
+								<div
+									className="absolute left-0 top-0 w-1/2 h-full z-10"
+									onClick={() => handleStarClick(index, true)}
+									onMouseEnter={() => handleStarHover(index, true)}
+								/>
+								{/* Right half (1.0) */}
+								<div
+									className="absolute right-0 top-0 w-1/2 h-full left-1/2 z-10"
+									onClick={() => handleStarClick(index, false)}
+									onMouseEnter={() => handleStarHover(index, false)}
+								/>
+								
+								{/* Icon rendering */}
+								<div className="absolute inset-0 pointer-events-none">
+									{/* Background: Gray Star (always render as base) */}
+									<Star className="absolute w-full h-full text-gray-300 fill-gray-300" />
+									
+									{/* Foreground: Yellow Star or Half Star */}
+									{filled ? (
+										<Star className="absolute w-full h-full text-yellow-400 fill-yellow-400" />
+									) : halfFilled ? (
+										<StarHalf className="absolute w-full h-full text-yellow-400 fill-yellow-400" />
+									) : null}
+								</div>
+							</div>
+						)
+					})}
+				</div>
+				<div className="text-sm text-gray-500 h-5 font-medium">
+					{displayRating > 0 ? displayRating : 'Rate this cafe'}
 				</div>
 				<input type="hidden" name="rating" value={rating}/>
 			</div>
@@ -81,13 +108,21 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 
 			{/* Liked */}
 			<div className="flex items-center gap-2">
-				<input
-					type="checkbox"
-					id="liked"
-					name="liked"
-					className="h-4 w-4 rounded border-gray-300"
-				/>
-				<label htmlFor="liked" className="text-sm font-medium">Liked</label>
+				<label className="flex items-center gap-2 cursor-pointer group">
+					<input
+						type="checkbox"
+						name="liked"
+						className="hidden"
+						checked={liked}
+						onChange={(e) => setLiked(e.target.checked)}
+					/>
+					<Heart
+						className={`w-6 h-6 transition-colors ${
+							liked ? 'fill-orange-500 text-orange-500' : 'text-gray-400 group-hover:text-gray-600'
+						}`}
+					/>
+					<span className="text-sm font-medium select-none">Like</span>
+				</label>
 			</div>
 
 			<SubmitButton/>
