@@ -2,7 +2,7 @@
 
 import {useState} from 'react'
 import {Cafe} from '@/types/database'
-import LogCafeForm from './LogCafeForm'
+import LogCafeForm from '@/components/deems/LogCafeForm'
 
 interface CafeListProps {
 	cafes: Cafe[]

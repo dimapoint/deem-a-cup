@@ -4,7 +4,7 @@ import type {ReactNode} from 'react'
 import {Calendar, Coffee, Heart, Link2, Mail, MapPin, User} from 'lucide-react'
 import type {Cafe, Deem, Profile} from '@/types/database'
 import {createClient} from '@/utils/supabase/server'
-import {CoffeeRating} from '@/components/CoffeeRating'
+import {CoffeeRating} from '@/components/deems/CoffeeRating'
 import {updateFavoriteCafes} from './actions'
 
 type ProfileRow = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url' | 'website' | 'favorite_cafe_ids'>

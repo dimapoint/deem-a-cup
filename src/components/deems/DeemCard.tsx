@@ -1,8 +1,8 @@
 import {DeemWithDetails} from '@/app/actions/deem'
-import {CoffeeRating} from '@/components/CoffeeRating'
+import {CoffeeRating} from './CoffeeRating'
 import {Coffee, Heart, User} from 'lucide-react'
 import Image from 'next/image'
-import WatchlistButton from '@/components/WatchlistButton'
+import WatchlistButton from '@/components/cafes/WatchlistButton'
 
 // Helper to format date
 const formatDate = (value: string) => {

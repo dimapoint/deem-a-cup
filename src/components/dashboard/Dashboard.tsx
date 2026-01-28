@@ -1,15 +1,15 @@
 'use client'
 
 import {useState} from 'react'
-import LogCafeForm from './LogCafeForm'
-import CreateCafeForm from './CreateCafeForm'
+import LogCafeForm from '@/components/deems/LogCafeForm'
+import CreateCafeForm from '@/components/cafes/CreateCafeForm'
 import {Store} from 'lucide-react'
-import CafeSearch from './CafeSearch'
+import CafeSearch from '@/components/cafes/CafeSearch'
 import {getOrCreateCafe} from '@/app/actions/cafe'
 import {Cafe} from '@/types/database'
 import {DeemWithDetails} from '@/app/actions/deem'
-import {DeemFeed} from './DeemFeed'
-import {NearbyCafes} from './NearbyCafes'
+import {DeemFeed} from '@/components/deems/DeemFeed'
+import {NearbyCafes} from '@/components/cafes/NearbyCafes'
 
 export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 	const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null)

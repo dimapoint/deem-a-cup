@@ -1,5 +1,5 @@
 import {createClient} from '@/utils/supabase/server'
-import {Dashboard} from '@/components/Dashboard'
+import {Dashboard} from '@/components/dashboard/Dashboard'
 import {redirect} from 'next/navigation'
 import {getRecentDeems} from '@/app/actions/deem'
 
