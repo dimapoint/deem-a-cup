@@ -2,6 +2,7 @@
 
 import {toggleWatchlist} from '@/app/actions/watchlist'
 import {Bookmark} from 'lucide-react'
+import {usePathname} from 'next/navigation'
 import {useOptimistic, useTransition} from 'react'
 
 interface WatchlistButtonProps {
@@ -9,35 +10,21 @@ interface WatchlistButtonProps {
 	initialIsSaved: boolean
 }
 
-const resolveOptimisticState = (_current: boolean, nextValue: boolean) => nextValue
-
 export default function WatchlistButton({cafeId, initialIsSaved}: WatchlistButtonProps) {
-	const [, startTransition] = useTransition()
+	const pathname = usePathname()
+	const [isPending, startTransition] = useTransition()
 	const [optimisticIsSaved, setOptimisticIsSaved] = useOptimistic(
 		initialIsSaved,
-		resolveOptimisticState
+		(_state, nextValue: boolean) => nextValue
 	)
 
 	const handleClick = () => {
-		const previousValue = optimisticIsSaved
-		const nextValue = !previousValue
+		const nextState = !optimisticIsSaved
 
-		startTransition(() => {
-			setOptimisticIsSaved(nextValue)
+		startTransition(async () => {
+			setOptimisticIsSaved(nextState)
+			await toggleWatchlist(cafeId, optimisticIsSaved, pathname)
 		})
-
-		void toggleWatchlist(cafeId, previousValue)
-			.then((result) => {
-				const nextState = result?.success ? result.isInWatchlist : previousValue
-				startTransition(() => {
-					setOptimisticIsSaved(nextState)
-				})
-			})
-			.catch(() => {
-				startTransition(() => {
-					setOptimisticIsSaved(previousValue)
-				})
-			})
 	}
 
 	const iconClassName = optimisticIsSaved ? 'text-orange-500' : 'text-gray-400'
@@ -46,9 +33,10 @@ export default function WatchlistButton({cafeId, initialIsSaved}: WatchlistButto
 		<button
 			type="button"
 			onClick={handleClick}
+			disabled={isPending}
 			aria-pressed={optimisticIsSaved}
 			aria-label={optimisticIsSaved ? 'Remove from watchlist' : 'Save to watchlist'}
-			className="inline-flex items-center justify-center rounded transition-transform active:scale-95"
+			className="inline-flex items-center justify-center rounded transition-transform active:scale-95 disabled:opacity-50"
 		>
 			<Bookmark
 				className={`h-5 w-5 transition-colors ${iconClassName}`}

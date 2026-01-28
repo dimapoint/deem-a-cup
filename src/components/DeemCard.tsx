@@ -92,7 +92,7 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 					<Coffee size={12}/>
 					<span>{cafe.address}</span>
 				</div>
-				<WatchlistButton cafeId={cafe.id} initialIsSaved={cafe.isSaved} />
+				<WatchlistButton cafeId={cafe.id} initialIsSaved={cafe.isSaved}/>
 			</div>
 		</div>
 	)

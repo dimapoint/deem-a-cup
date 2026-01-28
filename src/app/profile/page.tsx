@@ -1,16 +1,7 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import {redirect} from 'next/navigation'
 import type {ReactNode} from 'react'
-import {
-	Calendar,
-	Coffee,
-	Heart,
-	Link2,
-	Mail,
-	MapPin,
-	User
-} from 'lucide-react'
+import {Calendar, Coffee, Heart, Link2, Mail, MapPin, User} from 'lucide-react'
 import type {Cafe, Deem, Profile} from '@/types/database'
 import {createClient} from '@/utils/supabase/server'
 import {CoffeeRating} from '@/components/CoffeeRating'
@@ -20,7 +11,9 @@ type ProfileRow = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url' |
 
 type CafeCore = Pick<Cafe, 'id' | 'name' | 'place_id' | 'address'>
 
-type DeemWithCafe = Pick<Deem, 'id' | 'rating' | 'review' | 'liked' | 'visited_at' | 'created_at'> & {
+type DeemWithCafe =
+	Pick<Deem, 'id' | 'rating' | 'review' | 'liked' | 'visited_at' | 'created_at'>
+	& {
 	cafe: CafeCore | null
 }
 
@@ -93,7 +86,7 @@ const ProfilePage = async () => {
 			`)
 			.eq('user_id', user.id)
 			.order('visited_at', {ascending: false})
-			.overrideTypes<DeemWithCafe[], {merge: false}>()
+			.overrideTypes<DeemWithCafe[], { merge: false }>()
 	])
 
 	if (profileResult.error) {
@@ -210,9 +203,21 @@ const ProfilePage = async () => {
 	const lastVisit = deems[0]?.visited_at ? formatDate(deems[0].visited_at) : null
 
 	const stats: StatCardProps[] = [
-		{label: 'Visits', value: String(deems.length), icon: <Coffee size={14} className="text-gray-400"/>},
-		{label: 'Cafes', value: String(uniqueCafeCount), icon: <MapPin size={14} className="text-gray-400"/>},
-		{label: 'Liked', value: String(likedCount), icon: <Heart size={14} className="text-gray-400"/>},
+		{
+			label: 'Visits',
+			value: String(deems.length),
+			icon: <Coffee size={14} className="text-gray-400"/>
+		},
+		{
+			label: 'Cafes',
+			value: String(uniqueCafeCount),
+			icon: <MapPin size={14} className="text-gray-400"/>
+		},
+		{
+			label: 'Liked',
+			value: String(likedCount),
+			icon: <Heart size={14} className="text-gray-400"/>
+		},
 		{
 			label: 'Avg rating',
 			value: averageRating !== null ? averageRating.toFixed(1) : '-',
@@ -224,7 +229,8 @@ const ProfilePage = async () => {
 		<main className="min-h-screen bg-[#14181c] text-gray-100 p-4 md:p-8">
 			<div className="mx-auto max-w-4xl space-y-8">
 				<header className="space-y-6 border-b border-gray-800 pb-6">
-					<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div
+						className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 						<div className="flex items-center gap-4">
 							<div
 								className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-gray-700 bg-gray-800">
@@ -244,10 +250,12 @@ const ProfilePage = async () => {
 								<div className="flex flex-wrap items-center gap-2">
 									<h1 className="text-3xl font-bold text-white">{displayName}</h1>
 									{profile.username && (
-										<span className="text-sm text-gray-500">@{profile.username}</span>
+										<span
+											className="text-sm text-gray-500">@{profile.username}</span>
 									)}
 								</div>
-								<div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+								<div
+									className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
 									<span className="flex items-center gap-1">
 										<Calendar size={14}/>
 										Member since {memberSince}
@@ -286,11 +294,13 @@ const ProfilePage = async () => {
 							Past logs
 						</h2>
 						{deemsError ? (
-							<div className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
+							<div
+								className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
 								We couldn&#39;t load your logs right now. Please try again.
 							</div>
 						) : pastDeems.length === 0 ? (
-							<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
+							<div
+								className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
 								No logs yet. Log your first cafe to kick things off.
 							</div>
 						) : (
@@ -300,7 +310,8 @@ const ProfilePage = async () => {
 										key={deem.id}
 										className="rounded-lg border border-gray-800 bg-[#1e232b] p-4"
 									>
-										<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+										<div
+											className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 											<div>
 												<h3 className="text-lg font-semibold text-white">
 													{deem.cafe?.name ?? 'Unknown Cafe'}
@@ -318,13 +329,15 @@ const ProfilePage = async () => {
 											)}
 										</div>
 
-										<div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+										<div
+											className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
 											<span className="flex items-center gap-1">
 												<Calendar size={12}/>
 												{formatDate(deem.visited_at)}
 											</span>
 											{deem.liked && (
-												<span className="flex items-center gap-1 text-pink-400">
+												<span
+													className="flex items-center gap-1 text-pink-400">
 													<Heart size={12} className="fill-pink-400"/>
 													Liked
 												</span>
@@ -364,7 +377,8 @@ const ProfilePage = async () => {
 								</div>
 								<div className="flex items-center justify-between gap-3">
 									<span className="flex items-center gap-2">
-										<span className="text-sm leading-none text-gray-400" aria-hidden="true">☕</span>
+										<span className="text-sm leading-none text-gray-400"
+										      aria-hidden="true">☕</span>
 										Rated visits
 									</span>
 									<span className="text-gray-200">{ratedDeems.length}</span>
@@ -386,7 +400,8 @@ const ProfilePage = async () => {
 										<div key={cafe.id} className="flex items-start gap-3">
 											<div
 												className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
-												<span className="text-xs font-semibold text-gray-300">
+												<span
+													className="text-xs font-semibold text-gray-300">
 													{index + 1}
 												</span>
 											</div>

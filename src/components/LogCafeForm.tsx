@@ -115,7 +115,8 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 					</button>
 				</div>
 				<p className="text-xs text-gray-500">
-					Selected: <span className="font-medium text-gray-700">{formatDateLabel(visitedAt)}</span>
+					Selected: <span
+					className="font-medium text-gray-700">{formatDateLabel(visitedAt)}</span>
 				</p>
 			</div>
 
@@ -146,11 +147,13 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 
 								{/* Icon rendering */}
 								<div className="absolute inset-0 pointer-events-none">
-									<span className={`${cupClassName} opacity-30`} aria-hidden="true">☕</span>
+									<span className={`${cupClassName} opacity-30`}
+									      aria-hidden="true">☕</span>
 									{filled ? (
 										<span className={cupClassName} aria-hidden="true">☕</span>
 									) : halfFilled ? (
-										<span className={cupClassName} style={halfClipStyle} aria-hidden="true">☕</span>
+										<span className={cupClassName} style={halfClipStyle}
+										      aria-hidden="true">☕</span>
 									) : null}
 								</div>
 							</div>

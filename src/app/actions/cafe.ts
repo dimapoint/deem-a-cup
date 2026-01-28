@@ -2,6 +2,7 @@
 
 import {createClient} from '@/utils/supabase/server'
 import {Cafe} from '@/types/database'
+import {getPlaceLocation} from '@/app/actions/places'
 
 export async function getOrCreateCafe(placeId: string, name: string, address: string | null): Promise<Cafe> {
 	const supabase = await createClient()
@@ -21,12 +22,17 @@ export async function getOrCreateCafe(placeId: string, name: string, address: st
 	// We need to ensure the user is authenticated, though the RLS policies will also enforce this.
 	// The createClient from utils/supabase/server should handle the session.
 
+	// Fetch location
+	const location = await getPlaceLocation(placeId)
+
 	const {data: newCafe, error: insertError} = await supabase
 		.from('cafes')
 		.insert({
 			name,
 			address,
 			place_id: placeId,
+			latitude: location?.lat,
+			longitude: location?.lng,
 		})
 		.select()
 		.single()

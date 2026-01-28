@@ -13,6 +13,8 @@ export interface Cafe {
 	place_id: string
 	cover_image: string | null
 	created_at: string
+	latitude?: number | null
+	longitude?: number | null
 }
 
 export interface Deem {
@@ -38,6 +40,8 @@ export interface CafeInsert {
 	address?: string | null
 	place_id: string
 	cover_image?: string | null
+	latitude?: number | null
+	longitude?: number | null
 }
 
 export interface DeemInsert {

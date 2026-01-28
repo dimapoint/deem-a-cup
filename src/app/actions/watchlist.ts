@@ -3,7 +3,7 @@
 import {createClient} from '@/utils/supabase/server'
 import {revalidatePath} from 'next/cache'
 
-export async function toggleWatchlist(cafeId: string, currentState: boolean) {
+export async function toggleWatchlist(cafeId: string, currentState: boolean, pathname: string) {
 	const supabase = await createClient()
 
 	try {
@@ -24,8 +24,6 @@ export async function toggleWatchlist(cafeId: string, currentState: boolean) {
 
 			if (error) throw error
 
-			revalidatePath('/')
-			return {success: true, isInWatchlist: false}
 		} else {
 			// Add to watchlist
 			const {error} = await supabase
@@ -33,12 +31,12 @@ export async function toggleWatchlist(cafeId: string, currentState: boolean) {
 				.insert({user_id: user.id, cafe_id: cafeId})
 
 			if (error) throw error
-
-			revalidatePath('/')
-			return {success: true, isInWatchlist: true}
 		}
+
+		revalidatePath(pathname)
+		return {success: true}
 	} catch (error) {
 		console.error('Error toggling watchlist:', error)
-		return {success: false, isInWatchlist: currentState}
+		return {success: false}
 	}
 }

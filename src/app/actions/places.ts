@@ -9,10 +9,10 @@ export interface PlacePrediction {
 interface NewPlacePrediction {
 	placeId?: string
 	structuredFormat?: {
-		mainText?: {text?: string}
-		secondaryText?: {text?: string}
+		mainText?: { text?: string }
+		secondaryText?: { text?: string }
 	}
-	text?: {text?: string}
+	text?: { text?: string }
 }
 
 interface NewAutocompleteSuggestion {
@@ -170,4 +170,50 @@ export async function searchPlaces(query: string): Promise<PlacePrediction[]> {
 	}
 
 	return fetchLegacyAutocomplete(normalizedQuery, apiKey)
+}
+
+export async function getPlaceLocation(placeId: string): Promise<{
+	lat: number;
+	lng: number
+} | null> {
+	const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+	if (!apiKey) return null
+
+	// Try New API first
+	if (isNewPlacesApiAvailable) {
+		try {
+			const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}?fields=location&key=${apiKey}`)
+			if (response.ok) {
+				const data = await response.json()
+				if (data.location) {
+					return {
+						lat: data.location.latitude,
+						lng: data.location.longitude
+					}
+				}
+			}
+		} catch (e) {
+			console.error('Error fetching place details (new):', e)
+		}
+	}
+
+	// Fallback to Legacy API
+	try {
+		const url = new URL('https://maps.googleapis.com/maps/api/place/details/json')
+		url.searchParams.set('place_id', placeId)
+		url.searchParams.set('fields', 'geometry')
+		url.searchParams.set('key', apiKey)
+
+		const response = await fetch(url.toString())
+		if (response.ok) {
+			const data = await response.json()
+			if (data.result?.geometry?.location) {
+				return data.result.geometry.location
+			}
+		}
+	} catch (e) {
+		console.error('Error fetching place details (legacy):', e)
+	}
+
+	return null
 }

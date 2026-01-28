@@ -27,10 +27,10 @@ const CoffeeCup = ({fill, sizeClassName}: CoffeeCupProps) => {
 }
 
 export const CoffeeRating = ({
-	rating,
-	size = 'md',
-	className
-}: CoffeeRatingProps) => {
+	                             rating,
+	                             size = 'md',
+	                             className
+                             }: CoffeeRatingProps) => {
 	const clampedRating = Math.max(0, Math.min(5, rating))
 	const sizeClassName = size === 'sm' ? 'h-4 w-4 text-sm' : 'h-6 w-6 text-xl'
 	const gapClassName = size === 'sm' ? 'gap-0.5' : 'gap-1'

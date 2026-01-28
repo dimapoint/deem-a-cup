@@ -88,7 +88,7 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 
 		// 3. Fetch related data in parallel (including watchlist)
 		const {data: {user}} = await supabase.auth.getUser()
-		
+
 		const promises: Promise<any>[] = [
 			supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
 			supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds)
@@ -106,7 +106,7 @@ export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 		const results = await Promise.all(promises)
 		const cafesResult = results[0]
 		const profilesResult = results[1]
-		const watchlistResult = user ? results[2] : { data: [] }
+		const watchlistResult = user ? results[2] : {data: []}
 
 		if (cafesResult.error) {
 			console.error('Error fetching cafes:', cafesResult.error)

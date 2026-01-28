@@ -29,7 +29,7 @@ export default function RootLayout({
 		<body
 			className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#14181c] text-gray-100`}
 		>
-		<Navbar />
+		<Navbar/>
 		{children}
 		<SpeedInsights/>
 		</body>

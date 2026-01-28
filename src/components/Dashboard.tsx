@@ -9,6 +9,7 @@ import {getOrCreateCafe} from '@/app/actions/cafe'
 import {Cafe} from '@/types/database'
 import {DeemWithDetails} from '@/app/actions/deem'
 import {DeemFeed} from './DeemFeed'
+import {NearbyCafes} from './NearbyCafes'
 
 export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 	const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null)
@@ -38,6 +39,9 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 					Add Custom Cafe
 				</button>
 			</div>
+
+			{/* Nearby Cafes */}
+			<NearbyCafes onSelect={setSelectedCafe}/>
 
 			{/* Activity Feed */}
 			<section>

@@ -60,7 +60,7 @@ describe('logCoffee Server Action', () => {
 		const formData = new FormData()
 		formData.append('cafe_id', 'cafe-1')
 
-		await expect(logCoffee(formData)).rejects.toThrow('Debes iniciar sesión para loguear una visita')
+		await expect(logCoffee(formData)).rejects.toThrow('You must be logged in to log a visit')
 	})
 
 	it('should throw error if db insert fails', async () => {
@@ -69,6 +69,6 @@ describe('logCoffee Server Action', () => {
 		const formData = new FormData()
 		formData.append('cafe_id', 'cafe-1')
 
-		await expect(logCoffee(formData)).rejects.toThrow('Error al guardar la visita')
+		await expect(logCoffee(formData)).rejects.toThrow('Error saving visit')
 	})
 })

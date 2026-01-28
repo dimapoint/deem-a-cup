@@ -53,7 +53,7 @@ describe('LogCafeForm Component', () => {
 		await user.click(likedCheckbox)
 
 		// Submit
-		const submitButton = screen.getByText('Guardar')
+		const submitButton = screen.getByText('Save')
 		await user.click(submitButton)
 
 		// Check if logCoffee called

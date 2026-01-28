@@ -4,12 +4,12 @@ create extension if not exists "uuid-ossp";
 -- 1. Table: profiles (Public user data) - Must be first for FKs
 create table if not exists profiles
 (
-    id         uuid references auth.users on delete cascade not null primary key,
-    updated_at timestamp with time zone,
-    username   text unique,
-    full_name  text,
-    avatar_url text,
-    website    text,
+    id                uuid references auth.users on delete cascade not null primary key,
+    updated_at        timestamp with time zone,
+    username          text unique,
+    full_name         text,
+    avatar_url        text,
+    website           text,
     favorite_cafe_ids uuid[],
 
     constraint username_length check (char_length(username) >= 3),
@@ -156,3 +156,70 @@ drop policy if exists "Users can delete from their own watchlist" on watchlist;
 create policy "Users can delete from their own watchlist"
     on watchlist for delete
     using (auth.uid() = user_id);
+
+
+-- 5. Location Support
+alter table cafes
+    add column if not exists latitude double precision;
+alter table cafes
+    add column if not exists longitude double precision;
+
+create or replace function get_popular_nearby_cafes(
+    user_lat double precision,
+    user_lng double precision,
+    radius_km double precision default 20
+)
+    returns table
+            (
+                id          uuid,
+                name        text,
+                address     text,
+                place_id    text,
+                cover_image text,
+                latitude    double precision,
+                longitude   double precision,
+                visit_count bigint,
+                avg_rating  numeric,
+                distance_km double precision
+            )
+    language plpgsql
+    security definer
+as
+$$
+begin
+    return query
+        select c.id,
+               c.name,
+               c.address,
+               c.place_id,
+               c.cover_image,
+               c.latitude,
+               c.longitude,
+               count(d.id)   as visit_count,
+               avg(d.rating) as avg_rating,
+               (
+                   6371 * acos(
+                           least(1.0, greatest(-1.0,
+                                               cos(radians(user_lat)) * cos(radians(c.latitude)) *
+                                               cos(radians(c.longitude) - radians(user_lng)) +
+                                               sin(radians(user_lat)) * sin(radians(c.latitude))
+                                      ))
+                          )
+                   )         as distance_km
+        from cafes c
+                 left join deems d on c.id = d.cafe_id
+        where c.latitude is not null
+          and c.longitude is not null
+        group by c.id
+        having (
+                   6371 * acos(
+                           least(1.0, greatest(-1.0,
+                                               cos(radians(user_lat)) * cos(radians(c.latitude)) *
+                                               cos(radians(c.longitude) - radians(user_lng)) +
+                                               sin(radians(user_lat)) * sin(radians(c.latitude))
+                                      ))
+                          )
+                   ) <= radius_km
+        order by visit_count desc, avg_rating desc;
+end;
+$$;
