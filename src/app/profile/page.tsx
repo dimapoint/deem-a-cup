@@ -93,6 +93,7 @@ const ProfilePage = async () => {
 			`)
 			.eq('user_id', user.id)
 			.order('visited_at', {ascending: false})
+			.overrideTypes<DeemWithCafe[], {merge: false}>()
 	])
 
 	if (profileResult.error) {
@@ -112,7 +113,8 @@ const ProfilePage = async () => {
 		favorite_cafe_ids: []
 	}
 
-	const deems = (deemsResult.data ?? []) as DeemWithCafe[]
+	const deemsError = deemsResult.error
+	const deems = deemsResult.data ?? []
 
 	const displayName = profile.full_name || profile.username || user.email || 'Coffee fan'
 	const memberSince = user.created_at ? formatMonthYear(user.created_at) : 'Unknown'
@@ -283,7 +285,11 @@ const ProfilePage = async () => {
 						<h2 className="text-xs font-bold uppercase tracking-widest text-gray-500">
 							Past logs
 						</h2>
-						{pastDeems.length === 0 ? (
+						{deemsError ? (
+							<div className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
+								We couldn&#39;t load your logs right now. Please try again.
+							</div>
+						) : pastDeems.length === 0 ? (
 							<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
 								No logs yet. Log your first cafe to kick things off.
 							</div>
