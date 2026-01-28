@@ -1,5 +1,6 @@
 import {DeemWithDetails} from '@/app/actions/deem'
 import {Coffee, Heart, Star, User} from 'lucide-react'
+import Image from 'next/image'
 
 // Helper to format date
 const formatDate = (dateString: string) => {
@@ -24,8 +25,13 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 					<div
 						className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border border-gray-600">
 						{profile?.avatar_url ? (
-							<img src={profile.avatar_url} alt={profile.full_name || 'User'}
-							     className="w-full h-full object-cover"/>
+							<Image
+								src={profile.avatar_url}
+								alt={profile.full_name || 'User'}
+								width={40}
+								height={40}
+								className="w-full h-full object-cover"
+							/>
 						) : (
 							<User size={20} className="text-gray-400"/>
 						)}
@@ -63,7 +69,7 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 				<div className="pl-13 ml-10 border-l-2 border-gray-800 pl-3">
 					{deem.review && (
 						<p className="text-gray-300 text-sm leading-relaxed italic">
-							"{deem.review}"
+							&#34;{deem.review}&#34;
 						</p>
 					)}
 
