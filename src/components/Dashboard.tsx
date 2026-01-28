@@ -41,9 +41,6 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 
 			{/* Activity Feed */}
 			<section>
-				<h2 className="text-xl font-bold mb-6 text-gray-400 uppercase tracking-wider text-xs border-b border-gray-800 pb-2">
-					Recent Activity
-				</h2>
 				<DeemFeed deems={deems}/>
 			</section>
 

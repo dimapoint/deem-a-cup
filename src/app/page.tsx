@@ -21,11 +21,10 @@ export default async function Home() {
 				<header className="flex justify-between items-end border-b border-gray-800 pb-6">
 					<div>
 						<h1 className="text-4xl font-bold tracking-tighter text-white">
-							Deem a Cup <span className="text-orange-500">☕</span>
+							Recent Activity
 						</h1>
-						<p className="text-gray-500 mt-2">Bienvenido</p>
+						<p className="text-gray-500 mt-2">See what others are drinking</p>
 					</div>
-					{/* Optional: Add Profile Link here */}
 				</header>
 
 				<Dashboard deems={deems}/>
