@@ -47,7 +47,7 @@ describe('NearbyCafes', () => {
 		];
 
 		(nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockCafes)
-		render(<NearbyCafes onSelect={() => {
+		render(<NearbyCafes onSelectAction={() => {
 		}}/>)
 
 		// It might take a moment to render content after useEffect
@@ -61,7 +61,7 @@ describe('NearbyCafes', () => {
 	it('does not render if no cafes found', async () => {
 		(nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
 
-		const {container} = render(<NearbyCafes onSelect={() => {
+		const {container} = render(<NearbyCafes onSelectAction={() => {
 		}}/>)
 
 		await waitFor(() => {

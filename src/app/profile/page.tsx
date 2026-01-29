@@ -156,7 +156,7 @@ const ProfilePage = async () => {
 
 	const favoriteCafeIds = Array.from(new Set(
 		(profile.favorite_cafe_ids ?? [])
-			.filter((id): id is string => typeof id === 'string' && id.length > 0)
+			.filter((id): id is string => true && id.length > 0)
 	))
 
 	const visitedCafeMap = new Map<string, CafeCore>()

@@ -181,9 +181,7 @@ export async function getListDetails(listId: string): Promise<ListDetails | null
 
 	return {
 		...list,
-		// @ts-expect-error Supabase types join handling
 		user: list.user,
-		// @ts-expect-error Supabase types join handling
 		items: items as ListItemWithCafe[],
 	}
 }

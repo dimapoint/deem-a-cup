@@ -41,7 +41,7 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 			</div>
 
 			{/* Nearby Cafes */}
-			<NearbyCafes onSelect={setSelectedCafe}/>
+			<NearbyCafes onSelectAction={setSelectedCafe}/>
 
 			{/* Activity Feed */}
 			<section>

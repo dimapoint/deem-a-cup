@@ -17,12 +17,12 @@ function SubmitButton() {
 	)
 }
 
-export function CreateListForm({onSuccess}: { onSuccess?: () => void }) {
+export function CreateListForm({onSuccessAction}: { onSuccessAction?: () => void }) {
 	return (
 		<form
 			action={async (formData) => {
 				await createList(formData)
-				if (onSuccess) onSuccess()
+				if (onSuccessAction) onSuccessAction()
 			}}
 			className="flex flex-col gap-4 p-4 text-white bg-[#1e232b] rounded-lg border border-gray-800"
 		>

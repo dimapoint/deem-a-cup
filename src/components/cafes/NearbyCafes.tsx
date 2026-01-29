@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react'
 import {getNearbyPopularCafes, PopularCafe} from '@/app/actions/nearby'
 import {MapPin, Star} from 'lucide-react'
 
-export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void }) {
+export function NearbyCafes({onSelectAction}: { onSelectAction: (cafe: PopularCafe) => void }) {
 	const [cafes, setCafes] = useState<PopularCafe[]>([])
 	const [loading, setLoading] = useState(false)
 	const [locationError, setLocationError] = useState<string | null>(null)
@@ -72,7 +72,7 @@ export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void 
 				{cafes.map(cafe => (
 					<div
 						key={cafe.id}
-						onClick={() => onSelect(cafe)}
+						onClick={() => onSelectAction(cafe)}
 						className="bg-[#1e232b] p-4 rounded-xl border border-gray-800 hover:border-orange-500/50 cursor-pointer transition group"
 					>
 						<h3 className="font-bold text-lg group-hover:text-orange-400 transition truncate">{cafe.name}</h3>
