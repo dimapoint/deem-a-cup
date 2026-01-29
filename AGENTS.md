@@ -11,34 +11,38 @@ Core Philosophy: "Zero friction logging". Logging a visit should be instant; rev
 
 # Tech Stack (Strict)
 
-- Runtime/Package Manager: Bun (Always use `bun install`, `bun run`).
-- Framework: Next.js 15 (App Router).
-- Language: TypeScript (Strict mode).
-- Backend: Supabase (PostgreSQL, Auth, Storage).
-- Styling: Tailwind CSS.
-- Component Library: Radix UI primitives (if needed) or raw Tailwind. Lucide React for icons.
-- IDE: WebStorm (Optimize code for JetBrains tooling).
+- **Runtime/Package Manager:** Bun (Always use `bun install`, `bun run`, `bunx`).
+- **Framework:** Next.js 16 (App Router) with Turbo.
+- **Language:** TypeScript (Strict mode).
+- **Backend:** Supabase (PostgreSQL, Auth, Storage).
+- **Styling:** Tailwind CSS v4.
+- **Component Library:** Radix UI primitives (if needed) or raw Tailwind. Lucide React for icons.
+- **Testing:** Vitest, @testing-library/react.
+- **IDE:** WebStorm (Optimize code for JetBrains tooling).
 
 # Architecture Rules
 
 1. **Server Actions:** prioritize Server Actions (`'use server'`) for all data mutations. Do not create REST API
    routes (`app/api/...`) unless strictly necessary for external webhooks.
 2. **Supabase Clients:**
-    - Use `utils/supabase/server.ts` for Server Components/Actions.
+    - Use `utils/supabase/server.ts` for Server Components/Actions (uses `@supabase/ssr`).
     - Use `utils/supabase/client.ts` for Client Components.
-3. **Data Fetching:** Fetch data directly in Server Components when possible.
-4. **Types:** ALWAYS define interfaces for database tables in `types/database.ts` or infer them from Supabase generated
-   types. Avoid `any`.
+3. **Data Fetching:**
+   - Fetch data directly in Server Components when possible.
+   - For complex relations with user-specific state (like "isSaved"), prefer batch fetching related data and mapping it in application logic (manual joins) over deep nested Supabase selects if it improves type safety or performance control.
+4. **Types:** ALWAYS define interfaces for database tables in `types/database.ts`. Do not use `any`.
 
 # Database Schema (Reference)
 
-- `cafes`: public read. (id, name, address, place_id, cover_image).
+- `profiles`: public read. (id, username, full_name, avatar_url, favorite_cafe_ids).
+- `cafes`: public read. (id, name, address, place_id, cover_image, latitude, longitude).
 - `deems`: public read, auth write. (id, user_id, cafe_id, rating, review, visited_at, liked).
+- `watchlist`: public read, auth write. (user_id, cafe_id).
 
 # Coding Style
 
 - Functional components.
-- arrow functions.
+- Arrow functions.
 - Destructuring props.
 - Early returns.
 - Use `lucide-react` for icons.

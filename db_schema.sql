@@ -99,6 +99,11 @@ create table if not exists deems
     cafe_id    uuid references cafes (id)    not null,
     rating     numeric(2, 1) check (rating >= 0 and rating <= 5),
     review     text,
+    brew_method text,
+    bean_origin text,
+    roaster    text,
+    tags       text[],
+    price      numeric(10, 2),
     visited_at timestamp with time zone default now(),
     liked      boolean                  default false,
     created_at timestamp with time zone default now()
@@ -221,5 +226,198 @@ begin
                           )
                    ) <= radius_km
         order by visit_count desc, avg_rating desc;
+end;
+$$;
+
+
+-- 6. Table: follows
+create table if not exists follows
+(
+    follower_id  uuid references profiles (id) on delete cascade not null,
+    following_id uuid references profiles (id) on delete cascade not null,
+    created_at   timestamp with time zone default now(),
+    primary key (follower_id, following_id),
+    constraint distinct_users check (follower_id <> following_id)
+);
+
+-- RLS for follows
+alter table follows
+    enable row level security;
+
+drop policy if exists "Follows are viewable by everyone" on follows;
+create policy "Follows are viewable by everyone"
+    on follows for select
+    using (true);
+
+drop policy if exists "Users can follow others" on follows;
+create policy "Users can follow others"
+    on follows for insert
+    with check (auth.uid() = follower_id);
+
+drop policy if exists "Users can unfollow others" on follows;
+create policy "Users can unfollow others"
+    on follows for delete
+    using (auth.uid() = follower_id);
+
+
+-- 7. Table: lists (User created lists)
+create table if not exists lists
+(
+    id          uuid primary key         default gen_random_uuid(),
+    user_id     uuid references profiles (id) on delete cascade not null,
+    title       text not null,
+    description text,
+    is_ranked   boolean                  default false,
+    created_at  timestamp with time zone default now(),
+    updated_at  timestamp with time zone default now()
+);
+
+-- RLS for lists
+alter table lists
+    enable row level security;
+
+drop policy if exists "Lists are viewable by everyone" on lists;
+create policy "Lists are viewable by everyone"
+    on lists for select
+    using (true);
+
+drop policy if exists "Users can create their own lists" on lists;
+create policy "Users can create their own lists"
+    on lists for insert
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own lists" on lists;
+create policy "Users can update their own lists"
+    on lists for update
+    using (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own lists" on lists;
+create policy "Users can delete their own lists"
+    on lists for delete
+    using (auth.uid() = user_id);
+
+
+-- 8. Table: list_items (Items in a list)
+create table if not exists list_items
+(
+    id         uuid primary key         default gen_random_uuid(),
+    list_id    uuid references lists (id) on delete cascade not null,
+    cafe_id    uuid references cafes (id) on delete cascade not null,
+    "order"    integer, -- For ranked lists
+    note       text,
+    created_at timestamp with time zone default now(),
+    
+    unique(list_id, cafe_id) -- Prevent duplicate cafes in the same list
+);
+
+-- RLS for list_items
+alter table list_items
+    enable row level security;
+
+drop policy if exists "List items are viewable by everyone" on list_items;
+create policy "List items are viewable by everyone"
+    on list_items for select
+    using (true);
+
+drop policy if exists "Users can manage items in their own lists" on list_items;
+create policy "Users can manage items in their own lists"
+    on list_items for all
+    using (
+        exists (
+            select 1 from lists
+            where lists.id = list_items.list_id
+            and lists.user_id = auth.uid()
+        )
+    )
+    with check (
+        exists (
+            select 1 from lists
+            where lists.id = list_items.list_id
+            and lists.user_id = auth.uid()
+        )
+    );
+
+
+-- 9. Table: cafe_photos (User uploaded photos for cafes)
+create table if not exists cafe_photos
+(
+    id         uuid primary key         default gen_random_uuid(),
+    cafe_id    uuid references cafes (id) on delete cascade not null,
+    user_id    uuid references profiles (id) on delete cascade not null,
+    url        text not null,
+    caption    text,
+    created_at timestamp with time zone default now()
+);
+
+-- RLS for cafe_photos
+alter table cafe_photos
+    enable row level security;
+
+drop policy if exists "Cafe photos are viewable by everyone" on cafe_photos;
+create policy "Cafe photos are viewable by everyone"
+    on cafe_photos for select
+    using (true);
+
+drop policy if exists "Users can upload photos" on cafe_photos;
+create policy "Users can upload photos"
+    on cafe_photos for insert
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own photos" on cafe_photos;
+create policy "Users can delete their own photos"
+    on cafe_photos for delete
+    using (auth.uid() = user_id);
+
+
+-- 10. Table: photo_likes (Likes on cafe photos)
+create table if not exists photo_likes
+(
+    user_id    uuid references auth.users (id) on delete cascade not null,
+    photo_id   uuid references cafe_photos (id) on delete cascade not null,
+    created_at timestamp with time zone default now(),
+    primary key (user_id, photo_id)
+);
+
+-- RLS for photo_likes
+alter table photo_likes
+    enable row level security;
+
+drop policy if exists "Photo likes are viewable by everyone" on photo_likes;
+create policy "Photo likes are viewable by everyone"
+    on photo_likes for select
+    using (true);
+
+drop policy if exists "Users can like photos" on photo_likes;
+create policy "Users can like photos"
+    on photo_likes for insert
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can unlike photos" on photo_likes;
+create policy "Users can unlike photos"
+    on photo_likes for delete
+    using (auth.uid() = user_id);
+
+
+-- 11. Function: get_cafe_cover_photo
+-- Returns the URL of the most liked photo for a given cafe_id
+create or replace function get_cafe_cover_photo(target_cafe_id uuid)
+    returns text
+    language plpgsql
+    security definer
+as
+$$
+declare
+    cover_url text;
+begin
+    select cp.url
+    into cover_url
+    from cafe_photos cp
+             left join photo_likes pl on cp.id = pl.photo_id
+    where cp.cafe_id = target_cafe_id
+    group by cp.id
+    order by count(pl.user_id) desc, cp.created_at desc
+    limit 1;
+
+    return cover_url;
 end;
 $$;
