@@ -42,12 +42,11 @@ describe('NearbyCafes', () => {
 				cover_image: null,
 				created_at: '2023-01-01',
 				latitude: 40.7128,
-				longitude: -74.0060
-			}
-		]
-
-		vi.mocked(nearbyActions.getNearbyPopularCafes).mockResolvedValue(mockCafes)
-
+				        longitude: -74.0060
+				            }
+				        ];
+				
+				        (nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockCafes)
 		render(<NearbyCafes onSelect={() => {
 		}}/>)
 
@@ -60,7 +59,7 @@ describe('NearbyCafes', () => {
 	})
 
 	it('does not render if no cafes found', async () => {
-		vi.mocked(nearbyActions.getNearbyPopularCafes).mockResolvedValue([])
+		(nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
 
 		const {container} = render(<NearbyCafes onSelect={() => {
 		}}/>)

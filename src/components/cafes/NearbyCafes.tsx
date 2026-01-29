@@ -25,13 +25,14 @@ export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void 
 					setCafes(data)
 				} catch (e) {
 					console.error(e)
+					setLocationError('Failed to fetch nearby cafes')
 				} finally {
 					setLoading(false)
 				}
 			},
 			(error) => {
-				// Permissions denied or unavailable
 				setLoading(false)
+				setLocationError('Location access denied. Please enable location to see nearby cafes.')
 			}
 		)
 	}, [])
@@ -45,6 +46,15 @@ export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void 
 					<div className="h-32 bg-gray-800 rounded-xl"></div>
 					<div className="h-32 bg-gray-800 rounded-xl"></div>
 				</div>
+			</div>
+		)
+	}
+
+	if (locationError) {
+		return (
+			<div className="mb-8 p-4 bg-gray-800/50 rounded-xl border border-gray-700 text-center text-gray-400">
+				<MapPin className="text-gray-500 mx-auto mb-2" size={24}/>
+				<p>{locationError}</p>
 			</div>
 		)
 	}
