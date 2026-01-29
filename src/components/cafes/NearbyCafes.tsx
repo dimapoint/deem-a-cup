@@ -30,7 +30,7 @@ export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void 
 					setLoading(false)
 				}
 			},
-			(error) => {
+			() => {
 				setLoading(false)
 				setLocationError('Location access denied. Please enable location to see nearby cafes.')
 			}

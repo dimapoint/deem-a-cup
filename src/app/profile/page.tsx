@@ -5,7 +5,7 @@ import {Calendar, Coffee, Heart, Link2, Mail, MapPin, User} from 'lucide-react'
 import type {Cafe, Deem, Profile} from '@/types/database'
 import {createClient} from '@/utils/supabase/server'
 import {CoffeeRating} from '@/components/deems/CoffeeRating'
-import {updateFavoriteCafes} from './actions'
+import {updateFavoriteCafes, updateProfile} from './actions'
 import {CreateListForm} from '@/components/lists/CreateListForm'
 import {UserLists} from '@/components/lists/UserLists'
 import {getUserLists} from '@/app/actions/lists'
@@ -364,6 +364,20 @@ const ProfilePage = async () => {
 								))}
 							</div>
 						)}
+
+						<div className="pt-4">
+							<StatsSection stats={userStats}/>
+						</div>
+
+						<div className="space-y-4 pt-4">
+							<div className="flex items-center justify-between">
+								<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+									Your Lists
+								</h3>
+							</div>
+							<UserLists lists={userLists}/>
+							<CreateListForm/>
+						</div>
 					</div>
 
 					<aside className="space-y-4">
@@ -452,102 +466,88 @@ const ProfilePage = async () => {
 								</div>
 							</div>
 						</div>
-			</div>
 
-			<StatsSection stats={userStats}/>
-
-			{/* User Lists Section */}
-			<div className="space-y-4">
-				<div className="flex items-center justify-between">
-					<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
-						Your Lists
-					</h3>
-				</div>
-				<UserLists lists={userLists}/>
-				<CreateListForm/>
-			</div>
-
-			<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
-				<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
-					Top cafes
-				</h3>
-				{favoriteCafes.length === 0 ? (
-					<p className="mt-4 text-sm text-gray-500">
-						Pick up to three favorites to feature on your profile.
-					</p>
-				) : (
-					<div className="mt-4 space-y-3">
-						{favoriteCafes.map((cafe, index) => (
-							<div key={cafe.id} className="flex items-start gap-3">
-								<div
-									className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
-												<span
-													className="text-xs font-semibold text-gray-300">
-													{index + 1}
-												</span>
-								</div>
-								<div className="flex-1">
-									<p className="text-sm font-semibold text-gray-200">
-										{cafe.name}
-									</p>
-									<p className="text-xs text-gray-500">
-										{cafe.address ?? 'Address not set'}
-									</p>
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-
-				<div className="mt-4 border-t border-gray-800 pt-4">
-					<form action={updateFavoriteCafes} className="space-y-3">
-						{favoriteSlots.map((slot) => (
-							<div key={slot.id} className="space-y-1">
-								<label
-									htmlFor={slot.id}
-									className="text-[11px] font-semibold uppercase tracking-widest text-gray-500"
-								>
-									{slot.label}
-								</label>
-								<select
-									id={slot.id}
-									name={slot.id}
-									defaultValue={slot.value}
-									disabled={!hasSelectableCafes}
-									className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
-								>
-									<option value="">None</option>
-									{selectableCafes.map((cafe) => (
-										<option key={cafe.id} value={cafe.id}>
-											{cafe.name}
-										</option>
-									))}
-								</select>
-							</div>
-						))}
-
-						<div className="space-y-2">
-							{!hasSelectableCafes && (
-								<p className="text-xs text-gray-500">
-									Log a cafe to start choosing favorites.
+						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
+							<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+								Top cafes
+							</h3>
+							{favoriteCafes.length === 0 ? (
+								<p className="mt-4 text-sm text-gray-500">
+									Pick up to three favorites to feature on your profile.
 								</p>
+							) : (
+								<div className="mt-4 space-y-3">
+									{favoriteCafes.map((cafe, index) => (
+										<div key={cafe.id} className="flex items-start gap-3">
+											<div
+												className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
+															<span
+																className="text-xs font-semibold text-gray-300">
+																{index + 1}
+															</span>
+											</div>
+											<div className="flex-1">
+												<p className="text-sm font-semibold text-gray-200">
+													{cafe.name}
+												</p>
+												<p className="text-xs text-gray-500">
+													{cafe.address ?? 'Address not set'}
+												</p>
+											</div>
+										</div>
+									))}
+								</div>
 							)}
-							<button
-								type="submit"
-								disabled={!hasSelectableCafes}
-								className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
-							>
-								Save favorites
-							</button>
+
+							<div className="mt-4 border-t border-gray-800 pt-4">
+								<form action={updateFavoriteCafes} className="space-y-3">
+									{favoriteSlots.map((slot) => (
+										<div key={slot.id} className="space-y-1">
+											<label
+												htmlFor={slot.id}
+												className="text-[11px] font-semibold uppercase tracking-widest text-gray-500"
+											>
+												{slot.label}
+											</label>
+											<select
+												id={slot.id}
+												name={slot.id}
+												defaultValue={slot.value}
+												disabled={!hasSelectableCafes}
+												className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
+											>
+												<option value="">None</option>
+												{selectableCafes.map((cafe) => (
+													<option key={cafe.id} value={cafe.id}>
+														{cafe.name}
+													</option>
+												))}
+											</select>
+										</div>
+									))}
+
+									<div className="space-y-2">
+										{!hasSelectableCafes && (
+											<p className="text-xs text-gray-500">
+												Log a cafe to start choosing favorites.
+											</p>
+										)}
+										<button
+											type="submit"
+											disabled={!hasSelectableCafes}
+											className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
+										>
+											Save favorites
+										</button>
+									</div>
+								</form>
+							</div>
 						</div>
-					</form>
-				</div>
+					</aside>
+				</section>
 			</div>
-		</aside>
-</section>
-</div>
-</main>
-)
+		</main>
+	)
 }
 
 export default ProfilePage
