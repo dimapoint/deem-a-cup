@@ -6,9 +6,10 @@ import {PlacePrediction, searchPlaces} from '@/app/actions/places'
 
 interface CafeSearchProps {
 	onSelect: (placeId: string, name: string, address: string) => void
+	className?: string
 }
 
-export default function CafeSearch({onSelect}: CafeSearchProps) {
+export default function CafeSearch({onSelect, className}: CafeSearchProps) {
 	const [value, setValue] = useState('')
 	const [suggestions, setSuggestions] = useState<PlacePrediction[]>([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -50,8 +51,12 @@ export default function CafeSearch({onSelect}: CafeSearchProps) {
 		onSelect(suggestion.placeId, suggestion.mainText, suggestion.secondaryText)
 	}
 
+	const containerClassName = ['relative w-full max-w-md mx-auto mb-6', className]
+		.filter(Boolean)
+		.join(' ')
+
 	return (
-		<div ref={ref} className="relative w-full max-w-md mx-auto mb-6">
+		<div ref={ref} className={containerClassName}>
 			<div className="relative">
 				<div
 					className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
