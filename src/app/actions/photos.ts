@@ -13,6 +13,16 @@ export interface CafePhotoWithStats extends CafePhoto {
 	}
 }
 
+interface CafePhotoResponse extends CafePhoto {
+	profiles: {
+		username: string | null
+		avatar_url: string | null
+	} | null
+	photo_likes: {
+		user_id: string
+	}[]
+}
+
 export async function uploadCafePhoto(formData: FormData) {
 	const supabase = await createClient()
 
@@ -119,7 +129,7 @@ export async function getCafePhotos(cafeId: string): Promise<CafePhotoWithStats[
 	}
 
 	// Calculate stats in JS (or use a view/RPC for better performance in large scale)
-	return data.map((photo: any) => ({
+	return (data as unknown as CafePhotoResponse[]).map((photo) => ({
 		id: photo.id,
 		cafe_id: photo.cafe_id,
 		user_id: photo.user_id,
@@ -127,10 +137,10 @@ export async function getCafePhotos(cafeId: string): Promise<CafePhotoWithStats[
 		caption: photo.caption,
 		created_at: photo.created_at,
 		like_count: photo.photo_likes ? photo.photo_likes.length : 0,
-		is_liked: user ? photo.photo_likes.some((like: any) => like.user_id === user.id) : false,
+		is_liked: user ? photo.photo_likes.some((like) => like.user_id === user.id) : false,
 		user: {
 			username: photo.profiles?.username || 'Unknown',
-			avatar_url: photo.profiles?.avatar_url
+			avatar_url: photo.profiles?.avatar_url ?? null
 		}
 	})).sort((a, b) => b.like_count - a.like_count) // Sort by popularity
 }
