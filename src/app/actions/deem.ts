@@ -20,15 +20,27 @@ export async function logCoffee(formData: FormData) {
 	const review = formData.get('review') as string
 	const likedRaw = formData.get('liked')
 	const visitedAtRaw = formData.get('visited_at') as string
-
+	const tagsRaw = formData.get('tags') as string
+	const brewMethod = formData.get('brew_method') as string
+	const beanOrigin = formData.get('bean_origin') as string
+	const roaster = formData.get('roaster') as string
+	const priceRaw = formData.get('price')
+	
 	const rating = ratingRaw ? Number(ratingRaw) : null
+	const price = priceRaw ? Number(priceRaw) : null
 	const liked = likedRaw === 'on'
+	const tags = tagsRaw ? JSON.parse(tagsRaw) : []
 
 	const {error} = await supabase.from('deems').insert({
 		user_id: user.id,
 		cafe_id,
 		rating,
 		review,
+		brew_method: brewMethod || null,
+		bean_origin: beanOrigin || null,
+		roaster: roaster || null,
+		tags,
+		price,
 		liked,
 		visited_at: visitedAtRaw || undefined
 	})
@@ -46,6 +58,7 @@ export type DeemWithDetails = {
 	rating: number | null
 	review: string | null
 	liked: boolean | null
+	tags: string[] | null
 	visited_at: string
 	created_at: string
 	user_id: string

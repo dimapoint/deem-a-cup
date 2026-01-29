@@ -6,6 +6,11 @@ import type {Cafe, Deem, Profile} from '@/types/database'
 import {createClient} from '@/utils/supabase/server'
 import {CoffeeRating} from '@/components/deems/CoffeeRating'
 import {updateFavoriteCafes} from './actions'
+import {CreateListForm} from '@/components/lists/CreateListForm'
+import {UserLists} from '@/components/lists/UserLists'
+import {getUserLists} from '@/app/actions/lists'
+import {getUserStats} from '@/app/actions/stats'
+import {StatsSection} from '@/components/stats/StatsSection'
 
 type ProfileRow = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url' | 'website' | 'favorite_cafe_ids'>
 
@@ -87,6 +92,12 @@ const ProfilePage = async () => {
 			.eq('user_id', user.id)
 			.order('visited_at', {ascending: false})
 			.overrideTypes<DeemWithCafe[], { merge: false }>()
+	])
+
+	// Fetch user lists and stats
+	const [userLists, userStats] = await Promise.all([
+		getUserLists(user.id),
+		getUserStats(user.id)
 	])
 
 	if (profileResult.error) {
@@ -357,6 +368,59 @@ const ProfilePage = async () => {
 
 					<aside className="space-y-4">
 						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
+							<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">
+								Edit Details
+							</h3>
+							<form action={updateProfile} className="space-y-3">
+								<div className="space-y-1">
+									<label htmlFor="full_name" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+										Full Name
+									</label>
+									<input
+										type="text"
+										id="full_name"
+										name="full_name"
+										defaultValue={profile.full_name || ''}
+										className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300"
+										placeholder="Jane Doe"
+									/>
+								</div>
+								<div className="space-y-1">
+									<label htmlFor="username" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+										Username
+									</label>
+									<input
+										type="text"
+										id="username"
+										name="username"
+										defaultValue={profile.username || ''}
+										className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300"
+										placeholder="coffee_lover"
+									/>
+								</div>
+								<div className="space-y-1">
+									<label htmlFor="website" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+										Website
+									</label>
+									<input
+										type="url"
+										id="website"
+										name="website"
+										defaultValue={profile.website || ''}
+										className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300"
+										placeholder="https://example.com"
+									/>
+								</div>
+								<button
+									type="submit"
+									className="w-full rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-600"
+								>
+									Update Profile
+								</button>
+							</form>
+						</div>
+
+						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
 							<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
 								Profile
 							</h3>
@@ -383,7 +447,21 @@ const ProfilePage = async () => {
 									</span>
 									<span className="text-gray-200">{ratedDeems.length}</span>
 								</div>
+									</div>
 							</div>
+						</div>
+
+						<StatsSection stats={userStats} />
+
+                        {/* User Lists Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+								<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+									Your Lists
+								</h3>
+							</div>
+							<UserLists lists={userLists}/>
+							<CreateListForm/>
 						</div>
 
 						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">

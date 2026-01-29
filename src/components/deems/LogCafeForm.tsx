@@ -3,7 +3,7 @@
 import {logCoffee} from '@/app/actions/deem'
 import {useState} from 'react'
 import {useFormStatus} from 'react-dom'
-import {CalendarDays, Heart} from 'lucide-react'
+import {CalendarDays, Heart, X} from 'lucide-react'
 
 interface LogCafeFormProps {
 	cafeId: string
@@ -41,10 +41,17 @@ function SubmitButton() {
 	)
 }
 
+const BREW_METHODS = ['Espresso', 'Flat White', 'V60', 'Chemex', 'Cold Brew', 'Aeropress']
+const BEAN_ORIGINS = ['Colombia', 'Etiopía', 'Brasil', 'Blend de la casa']
+
 export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormProps) {
 	const [rating, setRating] = useState(0)
 	const [hoverRating, setHoverRating] = useState(0)
 	const [liked, setLiked] = useState(false)
+	const [tags, setTags] = useState<string[]>([])
+	const [currentTag, setCurrentTag] = useState('')
+	const [brewMethod, setBrewMethod] = useState('')
+	const [beanOrigin, setBeanOrigin] = useState('')
 	const [visitedAt, setVisitedAt] = useState(() => toDateInputValue(new Date()))
 	const today = new Date()
 	const yesterday = new Date()
@@ -60,6 +67,21 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 
 	const handleCoffeeHover = (cupIndex: number, isHalf: boolean) => {
 		setHoverRating(isHalf ? cupIndex + 0.5 : cupIndex + 1)
+	}
+
+	const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent) => {
+		if (e.type === 'keydown' && (e as React.KeyboardEvent).key !== 'Enter') return
+		e.preventDefault()
+		
+		const trimmedTag = currentTag.trim()
+		if (trimmedTag && !tags.includes(trimmedTag)) {
+			setTags([...tags, trimmedTag])
+			setCurrentTag('')
+		}
+	}
+
+	const removeTag = (tagToRemove: string) => {
+		setTags(tags.filter(tag => tag !== tagToRemove))
 	}
 
 	const displayRating = hoverRating > 0 ? hoverRating : rating
@@ -176,6 +198,112 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 					rows={3}
 					placeholder="How was it?"
 				/>
+			</div>
+
+			{/* Technical Details */}
+			<div className="flex flex-col gap-3 pt-2 pb-2">
+				{/* Brew Method */}
+				<div className="flex flex-col gap-1">
+					<label className="text-sm font-medium">Brew Method</label>
+					<div className="flex flex-wrap gap-2">
+						{BREW_METHODS.map(method => (
+							<button
+								type="button"
+								key={method}
+								onClick={() => setBrewMethod(method === brewMethod ? '' : method)}
+								className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+									brewMethod === method
+										? 'bg-orange-500 text-white border-orange-500'
+										: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+								}`}
+							>
+								{method}
+							</button>
+						))}
+					</div>
+					<input type="hidden" name="brew_method" value={brewMethod} />
+				</div>
+
+				{/* Bean Origin */}
+				<div className="flex flex-col gap-1">
+					<label className="text-sm font-medium">Bean Origin</label>
+					<div className="flex flex-wrap gap-2">
+						{BEAN_ORIGINS.map(origin => (
+							<button
+								type="button"
+								key={origin}
+								onClick={() => setBeanOrigin(origin === beanOrigin ? '' : origin)}
+								className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+									beanOrigin === origin
+										? 'bg-orange-500 text-white border-orange-500'
+										: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+								}`}
+							>
+								{origin}
+							</button>
+						))}
+					</div>
+					<input type="hidden" name="bean_origin" value={beanOrigin} />
+				</div>
+
+				{/* Roaster */}
+				<div className="flex flex-col gap-1">
+					<label htmlFor="roaster" className="text-sm font-medium">Roaster</label>
+					<input
+						id="roaster"
+						name="roaster"
+						type="text"
+						placeholder="Roaster (e.g. Fuego, Puerto Blest)"
+						className="rounded border border-gray-300 p-2 text-sm w-full"
+					/>
+				</div>
+
+				{/* Price */}
+				<div className="flex flex-col gap-1">
+					<label htmlFor="price" className="text-sm font-medium">Price</label>
+					<input
+						id="price"
+						name="price"
+						type="number"
+						step="0.01"
+						placeholder="0.00"
+						className="rounded border border-gray-300 p-2 text-sm w-full"
+					/>
+				</div>
+			</div>
+
+			{/* Tags */}
+			<div className="flex flex-col gap-2">
+				<label htmlFor="tags-input" className="text-sm font-medium">Tags</label>
+				<div className="flex flex-wrap gap-2 mb-1">
+					{tags.map(tag => (
+						<span key={tag} className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                            #{tag}
+                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-orange-950 focus:outline-none">
+                                <X size={12} />
+                            </button>
+                        </span>
+					))}
+				</div>
+				<div className="flex gap-2">
+					<input
+						id="tags-input"
+						type="text"
+						value={currentTag}
+						onChange={(e) => setCurrentTag(e.target.value)}
+						onKeyDown={handleAddTag}
+						className="flex-1 rounded border border-gray-300 p-2 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-200"
+						placeholder="Add a tag (e.g. Wifi, V60)..."
+					/>
+					<button 
+						type="button" 
+						onClick={handleAddTag}
+						className="bg-gray-100 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-200 transition-colors"
+					>
+						Add
+					</button>
+				</div>
+				<input type="hidden" name="tags" value={JSON.stringify(tags)} />
 			</div>
 
 			{/* Liked */}

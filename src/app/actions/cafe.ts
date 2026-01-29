@@ -48,8 +48,10 @@ export async function getOrCreateCafe(placeId: string, name: string, address: st
 export async function createCafe(formData: FormData) {
 	const name = formData.get('name') as string
 	const address = formData.get('address') as string
-	// Generate a unique place_id for manual entries
-	const placeId = `manual-${crypto.randomUUID()}`
+	const placeIdInput = formData.get('place_id') as string
+
+	// Use provided place_id or generate a unique one for manual entries
+	const placeId = placeIdInput || `manual-${crypto.randomUUID()}`
 
 	await getOrCreateCafe(placeId, name, address || null)
 }

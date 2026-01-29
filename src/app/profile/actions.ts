@@ -53,3 +53,50 @@ export async function updateFavoriteCafes(formData: FormData) {
 
 	revalidatePath('/profile')
 }
+
+export async function updateProfile(formData: FormData) {
+	const supabase = await createClient()
+
+	const {
+		data: {user},
+	} = await supabase.auth.getUser()
+
+	if (!user) {
+		throw new Error('You must be logged in to update your profile')
+	}
+
+	const fullName = formData.get('full_name') as string | null
+	const username = formData.get('username') as string | null
+	const website = formData.get('website') as string | null
+
+	// Basic validation
+	if (username && username.length < 3) {
+		throw new Error('Username must be at least 3 characters long')
+	}
+
+	const updates: {
+		full_name?: string
+		username?: string
+		website?: string
+		updated_at: string
+	} = {
+		updated_at: new Date().toISOString(),
+	}
+
+	if (typeof fullName === 'string') updates.full_name = fullName
+	if (typeof username === 'string') updates.username = username
+	if (typeof website === 'string') updates.website = website
+
+	const {error} = await supabase.from('profiles').update(updates).eq('id', user.id)
+
+	if (error) {
+		console.error('Error updating profile:', error)
+		if (error.code === '23505') {
+			throw new Error('Username already taken')
+		}
+		throw new Error('Error updating profile')
+	}
+
+	revalidatePath('/profile')
+	revalidatePath('/') // Revalidate home feed to show new name
+}

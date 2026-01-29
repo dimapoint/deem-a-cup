@@ -1,13 +1,14 @@
 import {login, signup} from './actions'
 
 type LoginPageProps = {
-	searchParams?: {
+	searchParams: Promise<{
 		error?: string | string[]
 		notice?: string | string[]
-	}
+	}>
 }
 
-const LoginPage = ({searchParams}: LoginPageProps) => {
+const LoginPage = async (props: LoginPageProps) => {
+	const searchParams = await props.searchParams
 	const getParamValue = (value?: string | string[]) =>
 		Array.isArray(value) ? value[0] : value
 

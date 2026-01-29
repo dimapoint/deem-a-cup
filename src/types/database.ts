@@ -23,6 +23,11 @@ export interface Deem {
 	cafe_id: string
 	rating: number | null
 	review: string | null
+	brew_method: string | null
+	bean_origin: string | null
+	roaster: string | null
+	tags: string[] | null
+	price: number | null
 	visited_at: string
 	liked: boolean | null
 	created_at: string
@@ -31,6 +36,46 @@ export interface Deem {
 export interface Watchlist {
 	user_id: string
 	cafe_id: string
+	created_at: string
+}
+
+export interface Follow {
+	follower_id: string
+	following_id: string
+	created_at: string
+}
+
+export interface List {
+	id: string
+	user_id: string
+	title: string
+	description: string | null
+	is_ranked: boolean
+	created_at: string
+	updated_at: string
+}
+
+export interface ListItem {
+	id: string
+	list_id: string
+	cafe_id: string
+	order: number | null
+	note: string | null
+	created_at: string
+}
+
+export interface CafePhoto {
+	id: string
+	cafe_id: string
+	user_id: string
+	url: string
+	caption: string | null
+	created_at: string
+}
+
+export interface PhotoLike {
+	user_id: string
+	photo_id: string
 	created_at: string
 }
 
@@ -49,6 +94,11 @@ export interface DeemInsert {
 	cafe_id: string
 	rating?: number | null
 	review?: string | null
+	brew_method?: string | null
+	bean_origin?: string | null
+	roaster?: string | null
+	tags?: string[] | null
+	price?: number | null
 	visited_at?: string
 	liked?: boolean
 }
@@ -56,6 +106,43 @@ export interface DeemInsert {
 export interface WatchlistInsert {
 	user_id: string
 	cafe_id: string
+	created_at?: string
+}
+
+export interface FollowInsert {
+	follower_id: string
+	following_id: string
+	created_at?: string
+}
+
+export interface ListInsert {
+	user_id: string
+	title: string
+	description?: string | null
+	is_ranked?: boolean
+	created_at?: string
+	updated_at?: string
+}
+
+export interface ListItemInsert {
+	list_id: string
+	cafe_id: string
+	order?: number | null
+	note?: string | null
+	created_at?: string
+}
+
+export interface CafePhotoInsert {
+	cafe_id: string
+	user_id: string
+	url: string
+	caption?: string | null
+	created_at?: string
+}
+
+export interface PhotoLikeInsert {
+	user_id: string
+	photo_id: string
 	created_at?: string
 }
 
