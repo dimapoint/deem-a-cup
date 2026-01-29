@@ -1,11 +1,10 @@
 'use client'
 
-import { createList } from '@/app/actions/lists'
-import { useFormStatus } from 'react-dom'
-import { useState } from 'react'
+import {createList} from '@/app/actions/lists'
+import {useFormStatus} from 'react-dom'
 
 function SubmitButton() {
-	const { pending } = useFormStatus()
+	const {pending} = useFormStatus()
 
 	return (
 		<button
@@ -18,7 +17,7 @@ function SubmitButton() {
 	)
 }
 
-export function CreateListForm({ onSuccess }: { onSuccess?: () => void }) {
+export function CreateListForm({onSuccess}: { onSuccess?: () => void }) {
 	return (
 		<form
 			action={async (formData) => {
@@ -68,7 +67,7 @@ export function CreateListForm({ onSuccess }: { onSuccess?: () => void }) {
 				</label>
 			</div>
 
-			<SubmitButton />
+			<SubmitButton/>
 		</form>
 	)
 }

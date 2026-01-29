@@ -1,19 +1,19 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+import {createClient} from '@/utils/supabase/server'
+import {revalidatePath} from 'next/cache'
 
 export async function followUser(followingId: string) {
 	const supabase = await createClient()
 	const {
-		data: { user },
+		data: {user},
 	} = await supabase.auth.getUser()
 
 	if (!user) {
 		throw new Error('Unauthorized')
 	}
 
-	const { error } = await supabase.from('follows').insert({
+	const {error} = await supabase.from('follows').insert({
 		follower_id: user.id,
 		following_id: followingId,
 	})
@@ -30,14 +30,14 @@ export async function followUser(followingId: string) {
 export async function unfollowUser(followingId: string) {
 	const supabase = await createClient()
 	const {
-		data: { user },
+		data: {user},
 	} = await supabase.auth.getUser()
 
 	if (!user) {
 		throw new Error('Unauthorized')
 	}
 
-	const { error } = await supabase
+	const {error} = await supabase
 		.from('follows')
 		.delete()
 		.eq('follower_id', user.id)

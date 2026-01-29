@@ -42,11 +42,11 @@ describe('NearbyCafes', () => {
 				cover_image: null,
 				created_at: '2023-01-01',
 				latitude: 40.7128,
-				        longitude: -74.0060
-				            }
-				        ];
-				
-				        (nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockCafes)
+				longitude: -74.0060
+			}
+		];
+
+		(nearbyActions.getNearbyPopularCafes as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockCafes)
 		render(<NearbyCafes onSelect={() => {
 		}}/>)
 

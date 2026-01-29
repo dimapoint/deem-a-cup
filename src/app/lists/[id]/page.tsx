@@ -1,16 +1,15 @@
-import { getListDetails } from '@/app/actions/lists'
-import { notFound } from 'next/navigation'
+import {getListDetails} from '@/app/actions/lists'
+import {notFound} from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, User } from 'lucide-react'
-import { CoffeeRating } from '@/components/deems/CoffeeRating' // We might not have rating here, just cafe info
+import {Calendar, User} from 'lucide-react'
 
 interface PageProps {
 	params: Promise<{ id: string }>
 }
 
-export default async function ListPage({ params }: PageProps) {
-	const { id } = await params
+export default async function ListPage({params}: PageProps) {
+	const {id} = await params
 	const list = await getListDetails(id)
 
 	if (!list) {
@@ -38,7 +37,8 @@ export default async function ListPage({ params }: PageProps) {
 								href={`/u/${list.user.username}`}
 								className="flex items-center gap-2 hover:text-orange-400 transition-colors"
 							>
-								<div className="relative h-6 w-6 overflow-hidden rounded-full bg-gray-800">
+								<div
+									className="relative h-6 w-6 overflow-hidden rounded-full bg-gray-800">
 									{list.user.avatar_url ? (
 										<Image
 											src={list.user.avatar_url}
@@ -47,16 +47,17 @@ export default async function ListPage({ params }: PageProps) {
 											className="object-cover"
 										/>
 									) : (
-										<User size={16} className="m-1 text-gray-400" />
+										<User size={16} className="m-1 text-gray-400"/>
 									)}
 								</div>
 								<span>{list.user.full_name || list.user.username}</span>
 							</Link>
 							<span className="flex items-center gap-1">
-								<Calendar size={14} />
+								<Calendar size={14}/>
 								{formatDate(list.created_at)}
 							</span>
-							<span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-300">
+							<span
+								className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-300">
 								{list.is_ranked ? 'Ranked List' : 'Collection'}
 							</span>
 						</div>
@@ -65,7 +66,8 @@ export default async function ListPage({ params }: PageProps) {
 
 				<section className="space-y-4">
 					{list.items.length === 0 ? (
-						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-8 text-center text-gray-500">
+						<div
+							className="rounded-lg border border-gray-800 bg-[#1e232b] p-8 text-center text-gray-500">
 							This list is empty.
 						</div>
 					) : (
@@ -77,7 +79,8 @@ export default async function ListPage({ params }: PageProps) {
 								>
 									{/* Rank Number (for ranked lists) */}
 									{list.is_ranked && (
-										<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white sm:h-10 sm:w-10 sm:text-lg">
+										<div
+											className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white sm:h-10 sm:w-10 sm:text-lg">
 											{item.order ?? index + 1}
 										</div>
 									)}
@@ -92,11 +95,12 @@ export default async function ListPage({ params }: PageProps) {
 													{item.cafe.address}
 												</p>
 											</div>
-                                            {/* Could add a 'View Cafe' button here later */}
+											{/* Could add a 'View Cafe' button here later */}
 										</div>
 
 										{item.note && (
-											<div className="rounded bg-gray-900/50 p-3 text-sm italic text-gray-300 border-l-2 border-orange-500/50">
+											<div
+												className="rounded bg-gray-900/50 p-3 text-sm italic text-gray-300 border-l-2 border-orange-500/50">
 												{item.note}
 											</div>
 										)}

@@ -1,11 +1,11 @@
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
-import type { ReactNode } from 'react'
-import { Calendar, Coffee, Heart, Link2, MapPin, User } from 'lucide-react'
-import type { Cafe, Deem, Profile } from '@/types/database'
-import { createClient } from '@/utils/supabase/server'
-import { CoffeeRating } from '@/components/deems/CoffeeRating'
-import { FollowButton } from '@/components/profile/FollowButton'
+import {notFound} from 'next/navigation'
+import type {ReactNode} from 'react'
+import {Calendar, Coffee, Heart, Link2, MapPin, User} from 'lucide-react'
+import type {Cafe, Deem, Profile} from '@/types/database'
+import {createClient} from '@/utils/supabase/server'
+import {CoffeeRating} from '@/components/deems/CoffeeRating'
+import {FollowButton} from '@/components/profile/FollowButton'
 
 type ProfileRow = Pick<
 	Profile,
@@ -43,7 +43,7 @@ const formatDate = (value: string) => {
 	}).format(date)
 }
 
-const StatCard = ({ label, value, icon }: StatCardProps) => (
+const StatCard = ({label, value, icon}: StatCardProps) => (
 	<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
 		<div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500">
 			{icon}
@@ -57,21 +57,32 @@ interface PageProps {
 	params: Promise<{ username: string }>
 }
 
-const PublicProfilePage = async ({ params }: PageProps) => {
-	const { username } = await params
+const PublicProfilePage = async ({params}: PageProps) => {
+	const {username} = await params
 	const supabase = await createClient()
 
 	const {
-		data: { user: currentUser },
+		data: {user: currentUser},
 	} = await supabase.auth.getUser()
 
 	// 1. Fetch Profile by Username
-	const { data: profileData, error: profileError } = await supabase
+	const {data: profileData, error: profileError} = await supabase
 		.from('profiles')
-		.select('id, full_name, username, avatar_url, website, favorite_cafe_ids, created_at') // Added created_at if available in profiles? No, it's in auth.users. 
+		.select('id, full_name, username, avatar_url, website, favorite_cafe_ids, created_at') // Added
+		// created_at
+		// if
+		// available
+		// in
+		// profiles?
+		// No,
+		// it's
+		// in
+		// auth.users.
+		//
 		// Wait, profiles table doesn't have created_at in the schema I read earlier.
-		// It has updated_at. I can't get "Member since" easily for public profiles unless I add created_at to profiles or join.
-		// I'll skip "Member since" for now or check if I can add created_at to profiles table.
+		// It has updated_at. I can't get "Member since" easily for public profiles unless I add
+		// created_at to profiles or join. I'll skip "Member since" for now or check if I can add
+		// created_at to profiles table.
 		.eq('username', username)
 		.maybeSingle()
 
@@ -90,18 +101,18 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 	// 2. Fetch Follow Status (if logged in and not own profile)
 	let isFollowing = false
 	if (currentUser && !isOwnProfile) {
-		const { data: followData } = await supabase
+		const {data: followData} = await supabase
 			.from('follows')
 			.select('created_at')
 			.eq('follower_id', currentUser.id)
 			.eq('following_id', profile.id)
 			.maybeSingle()
-		
+
 		isFollowing = !!followData
 	}
 
 	// 3. Fetch Deems
-	const { data: deemsData, error: deemsError } = await supabase
+	const {data: deemsData, error: deemsError} = await supabase
 		.from('deems')
 		.select(`
 			id,
@@ -118,7 +129,7 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 			)
 		`)
 		.eq('user_id', profile.id)
-		.order('visited_at', { ascending: false })
+		.order('visited_at', {ascending: false})
 		.overrideTypes<DeemWithCafe[], { merge: false }>()
 
 	if (deemsError) {
@@ -129,8 +140,9 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 
 	// --- Statistics Calculation (Same as ProfilePage) ---
 	const displayName = profile.full_name || profile.username || 'Coffee fan'
-	// "Member since" is tricky. profiles table doesn't have it. I'll omit it for public view for now.
-	
+	// "Member since" is tricky. profiles table doesn't have it. I'll omit it for public view for
+	// now.
+
 	const websiteUrl = profile.website
 		? profile.website.startsWith('http')
 			? profile.website
@@ -158,7 +170,7 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 		if (existing) {
 			existing.visits += 1
 		} else {
-			accumulator.set(deem.cafe.id, { cafe: deem.cafe, visits: 1 })
+			accumulator.set(deem.cafe.id, {cafe: deem.cafe, visits: 1})
 		}
 
 		return accumulator
@@ -185,7 +197,7 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 
 	const missingFavoriteIds = favoriteCafeIds.filter((id) => !cafeById.has(id))
 	if (missingFavoriteIds.length > 0) {
-		const { data: favoriteCafeResults } = await supabase
+		const {data: favoriteCafeResults} = await supabase
 			.from('cafes')
 			.select('id, name, place_id, address')
 			.in('id', missingFavoriteIds)
@@ -206,17 +218,17 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 		{
 			label: 'Visits',
 			value: String(deems.length),
-			icon: <Coffee size={14} className="text-gray-400" />,
+			icon: <Coffee size={14} className="text-gray-400"/>,
 		},
 		{
 			label: 'Cafes',
 			value: String(uniqueCafeCount),
-			icon: <MapPin size={14} className="text-gray-400" />,
+			icon: <MapPin size={14} className="text-gray-400"/>,
 		},
 		{
 			label: 'Liked',
 			value: String(likedCount),
-			icon: <Heart size={14} className="text-gray-400" />,
+			icon: <Heart size={14} className="text-gray-400"/>,
 		},
 		{
 			label: 'Avg rating',
@@ -229,9 +241,11 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 		<main className="min-h-screen bg-[#14181c] text-gray-100 p-4 md:p-8">
 			<div className="mx-auto max-w-4xl space-y-8">
 				<header className="space-y-6 border-b border-gray-800 pb-6">
-					<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div
+						className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 						<div className="flex items-center gap-4">
-							<div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-gray-700 bg-gray-800">
+							<div
+								className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-gray-700 bg-gray-800">
 								{profile.avatar_url ? (
 									<Image
 										src={profile.avatar_url}
@@ -241,28 +255,30 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 										className="object-cover"
 									/>
 								) : (
-									<User size={28} className="text-gray-400" />
+									<User size={28} className="text-gray-400"/>
 								)}
 							</div>
 							<div>
 								<div className="flex flex-wrap items-center gap-2">
 									<h1 className="text-3xl font-bold text-white">{displayName}</h1>
 									{profile.username && (
-										<span className="text-sm text-gray-500">@{profile.username}</span>
+										<span
+											className="text-sm text-gray-500">@{profile.username}</span>
 									)}
 								</div>
-								
+
 								{/* Follow Button Area */}
 								{!isOwnProfile && currentUser && (
 									<div className="mt-2">
-										<FollowButton 
-											targetUserId={profile.id} 
-											initialIsFollowing={isFollowing} 
+										<FollowButton
+											targetUserId={profile.id}
+											initialIsFollowing={isFollowing}
 										/>
 									</div>
 								)}
 
-								<div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+								<div
+									className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
 									{/* Omitted "Member since" as we don't have created_at in public profiles yet */}
 									{websiteUrl && (
 										<a
@@ -271,7 +287,7 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 											rel="noreferrer"
 											className="flex items-center gap-1 text-orange-400 hover:text-orange-300"
 										>
-											<Link2 size={14} />
+											<Link2 size={14}/>
 											{profile.website}
 										</a>
 									)}
@@ -298,11 +314,13 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 							Past logs
 						</h2>
 						{deemsError ? (
-							<div className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
+							<div
+								className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
 								We couldn&#39;t load logs right now.
 							</div>
 						) : pastDeems.length === 0 ? (
-							<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
+							<div
+								className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
 								No logs yet.
 							</div>
 						) : (
@@ -312,7 +330,8 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 										key={deem.id}
 										className="rounded-lg border border-gray-800 bg-[#1e232b] p-4"
 									>
-										<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+										<div
+											className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 											<div>
 												<h3 className="text-lg font-semibold text-white">
 													{deem.cafe?.name ?? 'Unknown Cafe'}
@@ -322,20 +341,23 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 												</p>
 											</div>
 											{deem.rating !== null && (
-												<div className="flex items-center rounded-md border border-gray-700 bg-gray-900 px-2 py-1 text-sm font-semibold text-gray-200">
-													<CoffeeRating rating={deem.rating} size="sm" />
+												<div
+													className="flex items-center rounded-md border border-gray-700 bg-gray-900 px-2 py-1 text-sm font-semibold text-gray-200">
+													<CoffeeRating rating={deem.rating} size="sm"/>
 												</div>
 											)}
 										</div>
 
-										<div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+										<div
+											className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
 											<span className="flex items-center gap-1">
-												<Calendar size={12} />
+												<Calendar size={12}/>
 												{formatDate(deem.visited_at)}
 											</span>
 											{deem.liked && (
-												<span className="flex items-center gap-1 text-pink-400">
-													<Heart size={12} className="fill-pink-400" />
+												<span
+													className="flex items-center gap-1 text-pink-400">
+													<Heart size={12} className="fill-pink-400"/>
 													Liked
 												</span>
 											)}
@@ -361,14 +383,15 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 								{/* Email hidden for public */}
 								<div className="flex items-center justify-between gap-3">
 									<span className="flex items-center gap-2">
-										<Calendar size={14} />
+										<Calendar size={14}/>
 										Last visit
 									</span>
 									<span className="text-gray-200">{lastVisit ?? '-'}</span>
 								</div>
 								<div className="flex items-center justify-between gap-3">
 									<span className="flex items-center gap-2">
-										<span className="text-sm leading-none text-gray-400" aria-hidden="true">
+										<span className="text-sm leading-none text-gray-400"
+										      aria-hidden="true">
 											☕
 										</span>
 										Rated visits
@@ -390,8 +413,10 @@ const PublicProfilePage = async ({ params }: PageProps) => {
 								<div className="mt-4 space-y-3">
 									{favoriteCafes.map((cafe, index) => (
 										<div key={cafe.id} className="flex items-start gap-3">
-											<div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
-												<span className="text-xs font-semibold text-gray-300">
+											<div
+												className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
+												<span
+													className="text-xs font-semibold text-gray-300">
 													{index + 1}
 												</span>
 											</div>

@@ -93,7 +93,7 @@ export async function togglePhotoLike(photoId: string) {
 				photo_id: photoId
 			})
 	}
-	
+
 	// We might not know the cafe_id easily here without an extra query, 
 	// but we can rely on client to revalidate if needed, or fetch it.
 	// For now, simple return.
@@ -136,17 +136,17 @@ export async function getCafePhotos(cafeId: string): Promise<CafePhotoWithStats[
 }
 
 export async function getDynamicCoverPhoto(cafeId: string): Promise<string | null> {
-    const supabase = await createClient()
-    
-    // Use the RPC we defined in SQL
-    const { data, error } = await supabase.rpc('get_cafe_cover_photo', {
-        target_cafe_id: cafeId
-    })
-    
-    if (error) {
-        console.error('Error fetching dynamic cover:', error)
-        return null
-    }
-    
-    return data as string | null
+	const supabase = await createClient()
+
+	// Use the RPC we defined in SQL
+	const {data, error} = await supabase.rpc('get_cafe_cover_photo', {
+		target_cafe_id: cafeId
+	})
+
+	if (error) {
+		console.error('Error fetching dynamic cover:', error)
+		return null
+	}
+
+	return data as string | null
 }

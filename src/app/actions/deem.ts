@@ -25,7 +25,7 @@ export async function logCoffee(formData: FormData) {
 	const beanOrigin = formData.get('bean_origin') as string
 	const roaster = formData.get('roaster') as string
 	const priceRaw = formData.get('price')
-	
+
 	const rating = ratingRaw ? Number(ratingRaw) : null
 	const price = priceRaw ? Number(priceRaw) : null
 	const liked = likedRaw === 'on'
@@ -79,7 +79,7 @@ export type DeemWithDetails = {
 type CafeSummary = Pick<Cafe, 'id' | 'name' | 'place_id' | 'address'>
 type ProfileSummary = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url'>
 type WatchlistCafe = Pick<Watchlist, 'cafe_id'>
-type QueryResult<T> = {data: T[] | null; error: unknown}
+type QueryResult<T> = { data: T[] | null; error: unknown }
 
 export async function getRecentDeems(): Promise<DeemWithDetails[]> {
 	const supabase = await createClient()

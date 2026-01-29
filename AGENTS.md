@@ -28,8 +28,10 @@ Core Philosophy: "Zero friction logging". Logging a visit should be instant; rev
     - Use `utils/supabase/server.ts` for Server Components/Actions (uses `@supabase/ssr`).
     - Use `utils/supabase/client.ts` for Client Components.
 3. **Data Fetching:**
-   - Fetch data directly in Server Components when possible.
-   - For complex relations with user-specific state (like "isSaved"), prefer batch fetching related data and mapping it in application logic (manual joins) over deep nested Supabase selects if it improves type safety or performance control.
+    - Fetch data directly in Server Components when possible.
+    - For complex relations with user-specific state (like "isSaved"), prefer batch fetching related data and mapping it
+      in application logic (manual joins) over deep nested Supabase selects if it improves type safety or performance
+      control.
 4. **Types:** ALWAYS define interfaces for database tables in `types/database.ts`. Do not use `any`.
 
 # Database Schema (Reference)

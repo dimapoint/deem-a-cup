@@ -1,13 +1,13 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
-import type { List, ListItem, Cafe, Profile } from '@/types/database'
+import {createClient} from '@/utils/supabase/server'
+import {revalidatePath} from 'next/cache'
+import type {Cafe, List, ListItem, Profile} from '@/types/database'
 
 export async function createList(formData: FormData) {
 	const supabase = await createClient()
 	const {
-		data: { user },
+		data: {user},
 	} = await supabase.auth.getUser()
 
 	if (!user) {
@@ -23,7 +23,7 @@ export async function createList(formData: FormData) {
 		throw new Error('Title is required')
 	}
 
-	const { error } = await supabase.from('lists').insert({
+	const {error} = await supabase.from('lists').insert({
 		user_id: user.id,
 		title,
 		description: description || null,
@@ -42,7 +42,7 @@ export async function createList(formData: FormData) {
 export async function addCafeToList(formData: FormData) {
 	const supabase = await createClient()
 	const {
-		data: { user },
+		data: {user},
 	} = await supabase.auth.getUser()
 
 	if (!user) {
@@ -61,7 +61,7 @@ export async function addCafeToList(formData: FormData) {
 	let order: number | null = null
 
 	// Fetch list details to check if it's ranked
-	const { data: list, error: listError } = await supabase
+	const {data: list, error: listError} = await supabase
 		.from('lists')
 		.select('is_ranked')
 		.eq('id', listId)
@@ -72,11 +72,11 @@ export async function addCafeToList(formData: FormData) {
 	}
 
 	if (list.is_ranked) {
-		const { data: maxOrderData, error: maxOrderError } = await supabase
+		const {data: maxOrderData, error: maxOrderError} = await supabase
 			.from('list_items')
 			.select('order')
 			.eq('list_id', listId)
-			.order('order', { ascending: false })
+			.order('order', {ascending: false})
 			.limit(1)
 			.maybeSingle()
 
@@ -85,7 +85,7 @@ export async function addCafeToList(formData: FormData) {
 		}
 	}
 
-	const { error } = await supabase.from('list_items').insert({
+	const {error} = await supabase.from('list_items').insert({
 		list_id: listId,
 		cafe_id: cafeId,
 		note: note || null,
@@ -109,14 +109,14 @@ export type ListWithCount = List & { count: number }
 export async function getUserLists(userId: string): Promise<ListWithCount[]> {
 	const supabase = await createClient()
 
-	const { data, error } = await supabase
+	const {data, error} = await supabase
 		.from('lists')
 		.select(`
             *,
             list_items (count)
         `)
 		.eq('user_id', userId)
-		.order('created_at', { ascending: false })
+		.order('created_at', {ascending: false})
 
 	if (error) {
 		console.error('Error fetching user lists:', error)
@@ -141,7 +141,7 @@ export type ListDetails = List & {
 export async function getListDetails(listId: string): Promise<ListDetails | null> {
 	const supabase = await createClient()
 
-	const { data: list, error: listError } = await supabase
+	const {data: list, error: listError} = await supabase
 		.from('lists')
 		.select(`
             *,
@@ -160,7 +160,7 @@ export async function getListDetails(listId: string): Promise<ListDetails | null
 		return null
 	}
 
-	const { data: items, error: itemsError } = await supabase
+	const {data: items, error: itemsError} = await supabase
 		.from('list_items')
 		.select(`
             *,
@@ -172,7 +172,7 @@ export async function getListDetails(listId: string): Promise<ListDetails | null
             )
         `)
 		.eq('list_id', listId)
-		.order(list.is_ranked ? 'order' : 'created_at', { ascending: true })
+		.order(list.is_ranked ? 'order' : 'created_at', {ascending: true})
 
 	if (itemsError) {
 		console.error('Error fetching list items:', itemsError)

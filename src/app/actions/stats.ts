@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import {createClient} from '@/utils/supabase/server'
 
 export type UserStats = {
 	totalDeems: number
@@ -15,7 +15,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
 	// Fetch necessary fields to calculate stats
 	// We don't need the full object, just rating and visited_at
-	const { data: deems, error } = await supabase
+	const {data: deems, error} = await supabase
 		.from('deems')
 		.select('rating, visited_at')
 		.eq('user_id', userId)
@@ -51,11 +51,11 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 		const r = i / 2
 		ratingDistribution[r.toString()] = 0
 	}
-    // Also handle 0 if allowed, though typically 1-5 or 0.5-5. Schema says >=0.
+	// Also handle 0 if allowed, though typically 1-5 or 0.5-5. Schema says >=0.
 
 	deems.forEach((deem) => {
 		const visitedAt = new Date(deem.visited_at)
-		
+
 		// 1. This Year Count
 		if (visitedAt.getFullYear() === currentYear) {
 			thisYearCount++
@@ -63,17 +63,17 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
 		// 2. Rating Distribution
 		if (deem.rating !== null) {
-            // Ensure key exists (e.g. if rating is 3, key is "3")
+			// Ensure key exists (e.g. if rating is 3, key is "3")
 			const key = deem.rating.toString()
-            if (ratingDistribution[key] !== undefined) {
-			    ratingDistribution[key]++
-            } else {
-                ratingDistribution[key] = 1
-            }
+			if (ratingDistribution[key] !== undefined) {
+				ratingDistribution[key]++
+			} else {
+				ratingDistribution[key] = 1
+			}
 		}
 
 		// 3. Day Distribution
-		const dayName = visitedAt.toLocaleDateString('en-US', { weekday: 'long' })
+		const dayName = visitedAt.toLocaleDateString('en-US', {weekday: 'long'})
 		if (dayDistribution[dayName] !== undefined) {
 			dayDistribution[dayName]++
 		}
@@ -89,9 +89,9 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 			mostActiveDay = day
 		}
 	})
-    
-    // If no visits, keep N/A
-    if (maxCount === 0) mostActiveDay = 'None yet'
+
+	// If no visits, keep N/A
+	if (maxCount === 0) mostActiveDay = 'None yet'
 
 	return {
 		totalDeems: deems.length,

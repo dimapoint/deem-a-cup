@@ -25,17 +25,28 @@ function SubmitButton() {
 }
 
 export default function CreateCafeForm({onSuccess}: CreateCafeFormProps) {
-	const [selectedPlace, setSelectedPlace] = useState<{placeId: string, name: string, address: string} | null>(null)
+	const [selectedPlace, setSelectedPlace] = useState<{
+		placeId: string,
+		name: string,
+		address: string
+	} | null>(null)
 
 	if (!selectedPlace) {
 		return (
-			<div className="flex flex-col gap-4 p-4 text-white bg-[#1e232b] rounded-lg border border-gray-800">
+			<div
+				className="flex flex-col gap-4 p-4 text-white bg-[#1e232b] rounded-lg border border-gray-800">
 				<h2 className="text-xl font-bold">Log a Cafe</h2>
 				<p className="text-sm text-gray-400">Search for a cafe to log your visit.</p>
-				<CafeSearch onSelect={(placeId, name, address) => setSelectedPlace({placeId, name, address})} />
-				
+				<CafeSearch onSelect={(placeId, name, address) => setSelectedPlace({
+					placeId,
+					name,
+					address
+				})}/>
+
 				<div className="text-center text-xs text-gray-500 mt-2">
-					Can&apos;t find it? <button onClick={() => setSelectedPlace({placeId: '', name: '', address: ''})} className="text-orange-500 hover:underline">Log manually</button>
+					Can&apos;t find it? <button
+					onClick={() => setSelectedPlace({placeId: '', name: '', address: ''})}
+					className="text-orange-500 hover:underline">Log manually</button>
 				</div>
 			</div>
 		)
@@ -51,12 +62,13 @@ export default function CreateCafeForm({onSuccess}: CreateCafeFormProps) {
 		>
 			<div className="flex justify-between items-center mb-2">
 				<h2 className="text-xl font-bold">Confirm Cafe</h2>
-				<button type="button" onClick={() => setSelectedPlace(null)} className="text-gray-400 hover:text-white transition-colors">
-					<X size={20} />
+				<button type="button" onClick={() => setSelectedPlace(null)}
+				        className="text-gray-400 hover:text-white transition-colors">
+					<X size={20}/>
 				</button>
 			</div>
 
-			<input type="hidden" name="place_id" value={selectedPlace.placeId} />
+			<input type="hidden" name="place_id" value={selectedPlace.placeId}/>
 
 			{/* Name */}
 			<div className="flex flex-col gap-1">
@@ -75,7 +87,8 @@ export default function CreateCafeForm({onSuccess}: CreateCafeFormProps) {
 
 			{/* Address */}
 			<div className="flex flex-col gap-1">
-				<label htmlFor="address" className="text-sm font-medium text-gray-300">Address</label>
+				<label htmlFor="address"
+				       className="text-sm font-medium text-gray-300">Address</label>
 				<input
 					type="text"
 					id="address"

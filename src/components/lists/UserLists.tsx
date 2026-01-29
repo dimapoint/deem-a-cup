@@ -1,15 +1,16 @@
 import Link from 'next/link'
-import { ListWithCount } from '@/app/actions/lists'
-import { List as ListIcon, Trophy } from 'lucide-react'
+import {ListWithCount} from '@/app/actions/lists'
+import {List as ListIcon, Trophy} from 'lucide-react'
 
 interface UserListsProps {
 	lists: ListWithCount[]
 }
 
-export function UserLists({ lists }: UserListsProps) {
+export function UserLists({lists}: UserListsProps) {
 	if (lists.length === 0) {
 		return (
-			<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
+			<div
+				className="rounded-lg border border-gray-800 bg-[#1e232b] p-6 text-sm text-gray-500">
 				No lists created yet.
 			</div>
 		)
@@ -35,9 +36,9 @@ export function UserLists({ lists }: UserListsProps) {
 							)}
 						</div>
 						{list.is_ranked ? (
-							<Trophy size={16} className="text-yellow-500 flex-shrink-0" />
+							<Trophy size={16} className="text-yellow-500 flex-shrink-0"/>
 						) : (
-							<ListIcon size={16} className="text-gray-500 flex-shrink-0" />
+							<ListIcon size={16} className="text-gray-500 flex-shrink-0"/>
 						)}
 					</div>
 					<div className="mt-4 text-xs text-gray-500">

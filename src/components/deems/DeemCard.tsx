@@ -63,7 +63,8 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 					<div>
 						<div className="flex items-baseline gap-2">
 							{profileUrl ? (
-								<Link href={profileUrl} className="font-bold text-gray-200 hover:text-orange-400 transition-colors">
+								<Link href={profileUrl}
+								      className="font-bold text-gray-200 hover:text-orange-400 transition-colors">
 									{profile?.full_name || profile?.username || 'Anonymous'}
 								</Link>
 							) : (

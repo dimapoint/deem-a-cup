@@ -373,7 +373,8 @@ const ProfilePage = async () => {
 							</h3>
 							<form action={updateProfile} className="space-y-3">
 								<div className="space-y-1">
-									<label htmlFor="full_name" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+									<label htmlFor="full_name"
+									       className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
 										Full Name
 									</label>
 									<input
@@ -386,7 +387,8 @@ const ProfilePage = async () => {
 									/>
 								</div>
 								<div className="space-y-1">
-									<label htmlFor="username" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+									<label htmlFor="username"
+									       className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
 										Username
 									</label>
 									<input
@@ -399,7 +401,8 @@ const ProfilePage = async () => {
 									/>
 								</div>
 								<div className="space-y-1">
-									<label htmlFor="website" className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+									<label htmlFor="website"
+									       className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">
 										Website
 									</label>
 									<input
@@ -447,104 +450,104 @@ const ProfilePage = async () => {
 									</span>
 									<span className="text-gray-200">{ratedDeems.length}</span>
 								</div>
-									</div>
 							</div>
 						</div>
+			</div>
 
-						<StatsSection stats={userStats} />
+			<StatsSection stats={userStats}/>
 
-                        {/* User Lists Section */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-								<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
-									Your Lists
-								</h3>
-							</div>
-							<UserLists lists={userLists}/>
-							<CreateListForm/>
-						</div>
+			{/* User Lists Section */}
+			<div className="space-y-4">
+				<div className="flex items-center justify-between">
+					<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+						Your Lists
+					</h3>
+				</div>
+				<UserLists lists={userLists}/>
+				<CreateListForm/>
+			</div>
 
-						<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
-							<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
-								Top cafes
-							</h3>
-							{favoriteCafes.length === 0 ? (
-								<p className="mt-4 text-sm text-gray-500">
-									Pick up to three favorites to feature on your profile.
-								</p>
-							) : (
-								<div className="mt-4 space-y-3">
-									{favoriteCafes.map((cafe, index) => (
-										<div key={cafe.id} className="flex items-start gap-3">
-											<div
-												className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
+			<div className="rounded-lg border border-gray-800 bg-[#1e232b] p-4">
+				<h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+					Top cafes
+				</h3>
+				{favoriteCafes.length === 0 ? (
+					<p className="mt-4 text-sm text-gray-500">
+						Pick up to three favorites to feature on your profile.
+					</p>
+				) : (
+					<div className="mt-4 space-y-3">
+						{favoriteCafes.map((cafe, index) => (
+							<div key={cafe.id} className="flex items-start gap-3">
+								<div
+									className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-gray-400">
 												<span
 													className="text-xs font-semibold text-gray-300">
 													{index + 1}
 												</span>
-											</div>
-											<div className="flex-1">
-												<p className="text-sm font-semibold text-gray-200">
-													{cafe.name}
-												</p>
-												<p className="text-xs text-gray-500">
-													{cafe.address ?? 'Address not set'}
-												</p>
-											</div>
-										</div>
-									))}
 								</div>
-							)}
-
-							<div className="mt-4 border-t border-gray-800 pt-4">
-								<form action={updateFavoriteCafes} className="space-y-3">
-									{favoriteSlots.map((slot) => (
-										<div key={slot.id} className="space-y-1">
-											<label
-												htmlFor={slot.id}
-												className="text-[11px] font-semibold uppercase tracking-widest text-gray-500"
-											>
-												{slot.label}
-											</label>
-											<select
-												id={slot.id}
-												name={slot.id}
-												defaultValue={slot.value}
-												disabled={!hasSelectableCafes}
-												className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
-											>
-												<option value="">None</option>
-												{selectableCafes.map((cafe) => (
-													<option key={cafe.id} value={cafe.id}>
-														{cafe.name}
-													</option>
-												))}
-											</select>
-										</div>
-									))}
-
-									<div className="space-y-2">
-										{!hasSelectableCafes && (
-											<p className="text-xs text-gray-500">
-												Log a cafe to start choosing favorites.
-											</p>
-										)}
-										<button
-											type="submit"
-											disabled={!hasSelectableCafes}
-											className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
-										>
-											Save favorites
-										</button>
-									</div>
-								</form>
+								<div className="flex-1">
+									<p className="text-sm font-semibold text-gray-200">
+										{cafe.name}
+									</p>
+									<p className="text-xs text-gray-500">
+										{cafe.address ?? 'Address not set'}
+									</p>
+								</div>
 							</div>
+						))}
+					</div>
+				)}
+
+				<div className="mt-4 border-t border-gray-800 pt-4">
+					<form action={updateFavoriteCafes} className="space-y-3">
+						{favoriteSlots.map((slot) => (
+							<div key={slot.id} className="space-y-1">
+								<label
+									htmlFor={slot.id}
+									className="text-[11px] font-semibold uppercase tracking-widest text-gray-500"
+								>
+									{slot.label}
+								</label>
+								<select
+									id={slot.id}
+									name={slot.id}
+									defaultValue={slot.value}
+									disabled={!hasSelectableCafes}
+									className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
+								>
+									<option value="">None</option>
+									{selectableCafes.map((cafe) => (
+										<option key={cafe.id} value={cafe.id}>
+											{cafe.name}
+										</option>
+									))}
+								</select>
+							</div>
+						))}
+
+						<div className="space-y-2">
+							{!hasSelectableCafes && (
+								<p className="text-xs text-gray-500">
+									Log a cafe to start choosing favorites.
+								</p>
+							)}
+							<button
+								type="submit"
+								disabled={!hasSelectableCafes}
+								className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
+							>
+								Save favorites
+							</button>
 						</div>
-					</aside>
-				</section>
+					</form>
+				</div>
 			</div>
-		</main>
-	)
+		</aside>
+</section>
+</div>
+</main>
+)
 }
 
 export default ProfilePage

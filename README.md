@@ -1,6 +1,7 @@
 # Deem a Cup ☕
 
-Zero-friction logging for coffee lovers who want to capture every visit in seconds—and review only when inspiration hits.
+Zero-friction logging for coffee lovers who want to capture every visit in seconds—and review only when inspiration
+hits.
 
 ## Overview
 
@@ -12,7 +13,8 @@ Zero-friction logging for coffee lovers who want to capture every visit in secon
 
 1. **Zero friction logging**: Prioritize the visit itself—keep the UI lean, mutations fast, and follow-ups optional.
 2. **Server-first actions**: Keep mutations close to the monorepo, built with Supabase-backed Server Actions.
-3. **Type safety & clarity**: Prefer explicit interfaces (`types/database.ts` or generated Supabase types) and avoid `any`.
+3. **Type safety & clarity**: Prefer explicit interfaces (`types/database.ts` or generated Supabase types) and avoid
+   `any`.
 
 ## Tech Stack (strict)
 
@@ -40,7 +42,8 @@ Zero-friction logging for coffee lovers who want to capture every visit in secon
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-4. **Bootstrap Supabase schema**: run the SQL in `db_schema.sql` inside the Supabase SQL editor to create `cafes`, `deems`, and recommended RLS policies.
+4. **Bootstrap Supabase schema**: run the SQL in `db_schema.sql` inside the Supabase SQL editor to create `cafes`,
+   `deems`, and recommended RLS policies.
 
 5. **Run the app**
 
@@ -52,13 +55,16 @@ Zero-friction logging for coffee lovers who want to capture every visit in secon
 
 ## Development workflow
 
-- **Server Actions only**: Mutations live in Server Components under `src/app/**` or dedicated actions files (`'use server'` blocks). Avoid adding REST API routes unless handling external webhooks.
+- **Server Actions only**: Mutations live in Server Components under `src/app/**` or dedicated actions files (
+  `'use server'` blocks). Avoid adding REST API routes unless handling external webhooks.
 - **Supabase clients**
-  - Use `utils/supabase/server.ts` inside Server Components or Actions.
-  - Use `utils/supabase/client.ts` inside Client Components.
+    - Use `utils/supabase/server.ts` inside Server Components or Actions.
+    - Use `utils/supabase/client.ts` inside Client Components.
 - **Data fetching**: Prefer direct fetches in Server Components; keep hydration minimal.
-- **Types**: Define table interfaces inside `types/database.ts` or reuse Supabase-generated helpers. Keep `any` out of shared code.
-- **Component conventions**: Functional arrow components, prop destructuring, early returns, Radix + Tailwind for styling, Lucide icons when needed.
+- **Types**: Define table interfaces inside `types/database.ts` or reuse Supabase-generated helpers. Keep `any` out of
+  shared code.
+- **Component conventions**: Functional arrow components, prop destructuring, early returns, Radix + Tailwind for
+  styling, Lucide icons when needed.
 
 ## Project structure highlights
 

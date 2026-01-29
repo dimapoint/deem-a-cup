@@ -52,7 +52,8 @@ export function NearbyCafes({onSelect}: { onSelect: (cafe: PopularCafe) => void 
 
 	if (locationError) {
 		return (
-			<div className="mb-8 p-4 bg-gray-800/50 rounded-xl border border-gray-700 text-center text-gray-400">
+			<div
+				className="mb-8 p-4 bg-gray-800/50 rounded-xl border border-gray-700 text-center text-gray-400">
 				<MapPin className="text-gray-500 mx-auto mb-2" size={24}/>
 				<p>{locationError}</p>
 			</div>

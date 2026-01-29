@@ -94,19 +94,19 @@ create policy "Cafes can be updated by authenticated users"
 -- 3. Table: deems
 create table if not exists deems
 (
-    id         uuid primary key         default gen_random_uuid(),
-    user_id    uuid references profiles (id) not null, -- Changed to reference profiles
-    cafe_id    uuid references cafes (id)    not null,
-    rating     numeric(2, 1) check (rating >= 0 and rating <= 5),
-    review     text,
+    id          uuid primary key         default gen_random_uuid(),
+    user_id     uuid references profiles (id) not null, -- Changed to reference profiles
+    cafe_id     uuid references cafes (id)    not null,
+    rating      numeric(2, 1) check (rating >= 0 and rating <= 5),
+    review      text,
     brew_method text,
     bean_origin text,
-    roaster    text,
-    tags       text[],
-    price      numeric(10, 2),
-    visited_at timestamp with time zone default now(),
-    liked      boolean                  default false,
-    created_at timestamp with time zone default now()
+    roaster     text,
+    tags        text[],
+    price       numeric(10, 2),
+    visited_at  timestamp with time zone default now(),
+    liked       boolean                  default false,
+    created_at  timestamp with time zone default now()
 );
 
 -- RLS for deems
@@ -265,7 +265,7 @@ create table if not exists lists
 (
     id          uuid primary key         default gen_random_uuid(),
     user_id     uuid references profiles (id) on delete cascade not null,
-    title       text not null,
+    title       text                                            not null,
     description text,
     is_ranked   boolean                  default false,
     created_at  timestamp with time zone default now(),
@@ -303,11 +303,11 @@ create table if not exists list_items
     id         uuid primary key         default gen_random_uuid(),
     list_id    uuid references lists (id) on delete cascade not null,
     cafe_id    uuid references cafes (id) on delete cascade not null,
-    "order"    integer, -- For ranked lists
+    "order"    integer,       -- For ranked lists
     note       text,
     created_at timestamp with time zone default now(),
-    
-    unique(list_id, cafe_id) -- Prevent duplicate cafes in the same list
+
+    unique (list_id, cafe_id) -- Prevent duplicate cafes in the same list
 );
 
 -- RLS for list_items
@@ -323,18 +323,16 @@ drop policy if exists "Users can manage items in their own lists" on list_items;
 create policy "Users can manage items in their own lists"
     on list_items for all
     using (
-        exists (
-            select 1 from lists
+    exists (select 1
+            from lists
             where lists.id = list_items.list_id
-            and lists.user_id = auth.uid()
-        )
+              and lists.user_id = auth.uid())
     )
     with check (
-        exists (
-            select 1 from lists
+    exists (select 1
+            from lists
             where lists.id = list_items.list_id
-            and lists.user_id = auth.uid()
-        )
+              and lists.user_id = auth.uid())
     );
 
 
@@ -342,9 +340,9 @@ create policy "Users can manage items in their own lists"
 create table if not exists cafe_photos
 (
     id         uuid primary key         default gen_random_uuid(),
-    cafe_id    uuid references cafes (id) on delete cascade not null,
+    cafe_id    uuid references cafes (id) on delete cascade    not null,
     user_id    uuid references profiles (id) on delete cascade not null,
-    url        text not null,
+    url        text                                            not null,
     caption    text,
     created_at timestamp with time zone default now()
 );
@@ -372,7 +370,7 @@ create policy "Users can delete their own photos"
 -- 10. Table: photo_likes (Likes on cafe photos)
 create table if not exists photo_likes
 (
-    user_id    uuid references auth.users (id) on delete cascade not null,
+    user_id    uuid references auth.users (id) on delete cascade  not null,
     photo_id   uuid references cafe_photos (id) on delete cascade not null,
     created_at timestamp with time zone default now(),
     primary key (user_id, photo_id)
