@@ -71,7 +71,7 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 				<div
 					className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
 					<div
-						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex max-h-[calc(100dvh-2rem)] flex-col">
 
 						<div
 							className="flex justify-between items-center p-4 border-b border-gray-700 bg-[#14181c]">
@@ -86,7 +86,7 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 							</button>
 						</div>
 
-						<div className="p-4">
+						<div className="overflow-y-auto p-3 sm:p-4">
 							<LogCafeForm
 								cafeId={selectedCafe.id}
 								cafeName={selectedCafe.name}
@@ -102,7 +102,7 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 				<div
 					className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
 					<div
-						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+						className="bg-[#1e232b] border border-gray-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex max-h-[calc(100dvh-2rem)] flex-col">
 						<div
 							className="flex justify-between items-center p-4 border-b border-gray-700 bg-[#14181c]">
 							<h3 className="font-bold text-lg">
@@ -116,7 +116,7 @@ export function Dashboard({deems}: { deems: DeemWithDetails[] }) {
 							</button>
 						</div>
 
-						<div className="p-4">
+						<div className="overflow-y-auto p-3 sm:p-4">
 							<CreateCafeForm
 								onSuccess={() => setIsCreateModalOpen(false)}
 							/>
