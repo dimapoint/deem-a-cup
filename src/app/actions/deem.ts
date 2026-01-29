@@ -7,6 +7,22 @@ import {revalidatePath} from 'next/cache'
 export async function logCoffee(formData: FormData) {
 	const supabase = await createClient()
 
+	const parseOptionalNumber = (value: FormDataEntryValue | null) => {
+		if (typeof value !== 'string') return null
+		const trimmed = value.trim()
+		if (!trimmed) return null
+		const parsed = Number(trimmed)
+		return Number.isFinite(parsed) ? parsed : null
+	}
+
+	const parseOptionalCurrency = (value: FormDataEntryValue | null) => {
+		if (typeof value !== 'string') return null
+		const cleaned = value.trim().replace(/[^\d.-]/g, '')
+		if (!cleaned) return null
+		const parsed = Number(cleaned)
+		return Number.isFinite(parsed) ? parsed : null
+	}
+
 	const {
 		data: {user},
 	} = await supabase.auth.getUser()
@@ -15,9 +31,14 @@ export async function logCoffee(formData: FormData) {
 		throw new Error('You must be logged in to log a visit')
 	}
 
-	const cafe_id = formData.get('cafe_id') as string
+	const cafeIdRaw = formData.get('cafe_id')
+	if (typeof cafeIdRaw !== 'string' || !cafeIdRaw) {
+		throw new Error('Missing cafe id')
+	}
+
+	const cafe_id = cafeIdRaw
 	const ratingRaw = formData.get('rating')
-	const review = formData.get('review') as string
+	const reviewRaw = formData.get('review')
 	const likedRaw = formData.get('liked')
 	const visitedAtRaw = formData.get('visited_at') as string
 	const tagsRaw = formData.get('tags') as string
@@ -26,10 +47,22 @@ export async function logCoffee(formData: FormData) {
 	const roaster = formData.get('roaster') as string
 	const priceRaw = formData.get('price')
 
-	const rating = ratingRaw ? Number(ratingRaw) : null
-	const price = priceRaw ? Number(priceRaw) : null
+	const rating = parseOptionalNumber(ratingRaw)
+	const price = parseOptionalCurrency(priceRaw)
 	const liked = likedRaw === 'on'
-	const tags = tagsRaw ? JSON.parse(tagsRaw) : []
+	const review = typeof reviewRaw === 'string' && reviewRaw.trim() ? reviewRaw.trim() : null
+	let tags: string[] = []
+
+	if (tagsRaw.trim()) {
+		try {
+			const parsed = JSON.parse(tagsRaw)
+			if (Array.isArray(parsed)) {
+				tags = parsed.filter((tag) => typeof tag === 'string' && tag.trim().length > 0)
+			}
+		} catch (error) {
+			console.error('Error parsing tags:', error)
+		}
+	}
 
 	const {error} = await supabase.from('deems').insert({
 		user_id: user.id,
@@ -47,7 +80,7 @@ export async function logCoffee(formData: FormData) {
 
 	if (error) {
 		console.error('Error logging coffee:', error)
-		throw new Error('Error saving visit')
+		throw new Error(error.message || 'Error saving visit')
 	}
 
 	revalidatePath('/')
