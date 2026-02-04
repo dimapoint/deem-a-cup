@@ -419,3 +419,13 @@ begin
     return cover_url;
 end;
 $$;
+
+-- 12. Schema Migrations (Ensure columns exist for existing tables)
+alter table deems add column if not exists brew_method text;
+alter table deems add column if not exists bean_origin text;
+alter table deems add column if not exists roaster text;
+alter table deems add column if not exists price numeric(10, 2);
+alter table deems add column if not exists tags text[];
+
+-- Reload schema cache to ensure PostgREST picks up the new columns
+NOTIFY pgrst, 'reload schema';
