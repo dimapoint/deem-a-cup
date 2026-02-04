@@ -8,11 +8,7 @@ export async function getOrCreateCafe(placeId: string, name: string, address: st
 	const supabase = await createClient()
 
 	// 1. Check if cafe exists
-	const {data: existingCafe} = await supabase
-		.from('cafes')
-		.select('*')
-		.eq('place_id', placeId)
-		.single()
+	const {data: existingCafe} = await supabase.from('cafes').select('*').eq('place_id', placeId).single()
 
 	if (existingCafe) {
 		return existingCafe as Cafe
