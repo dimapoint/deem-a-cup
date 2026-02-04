@@ -1,16 +1,16 @@
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-import { getUserLists } from '@/app/actions/lists'
-import { getUserStats } from '@/app/actions/stats'
-import { calculateProfileStats, getProfileCafes } from '@/utils/profile-calculations'
-import { formatDate, formatMonthYear } from '@/utils/date'
-import { DeemWithCafe, ProfileRow } from '@/types/profile'
+import {createClient} from '@/utils/supabase/server'
+import {redirect} from 'next/navigation'
+import {getUserLists} from '@/app/actions/lists'
+import {getUserStats} from '@/app/actions/stats'
+import {calculateProfileStats, getProfileCafes} from '@/utils/profile-calculations'
+import {formatDate, formatMonthYear} from '@/utils/date'
+import {DeemWithCafe, ProfileRow} from '@/types/profile'
 
 export async function getProfilePageData() {
 	const supabase = await createClient()
 
 	const {
-		data: { user },
+		data: {user},
 	} = await supabase.auth.getUser()
 	if (!user) {
 		redirect('/login')
@@ -39,7 +39,7 @@ export async function getProfilePageData() {
 				)
 			`)
 			.eq('user_id', user.id)
-			.order('visited_at', { ascending: false })
+			.order('visited_at', {ascending: false})
 			.overrideTypes<DeemWithCafe[], { merge: false }>(),
 	])
 
@@ -77,17 +77,17 @@ export async function getProfilePageData() {
 			: `https://${profile.website}`
 		: null
 
-	const { averageRating, likedCount, uniqueCafeCount } = calculateProfileStats(deems)
-	const { favoriteCafes, selectableCafes, favoriteCafeIds } = await getProfileCafes(
+	const {averageRating, likedCount, uniqueCafeCount} = calculateProfileStats(deems)
+	const {favoriteCafes, selectableCafes, favoriteCafeIds} = await getProfileCafes(
 		profile,
 		deems,
 		supabase
 	)
 
 	const favoriteSlots = [
-		{ id: 'favorite_cafe_1', label: 'Favorite #1', value: favoriteCafeIds[0] ?? '' },
-		{ id: 'favorite_cafe_2', label: 'Favorite #2', value: favoriteCafeIds[1] ?? '' },
-		{ id: 'favorite_cafe_3', label: 'Favorite #3', value: favoriteCafeIds[2] ?? '' },
+		{id: 'favorite_cafe_1', label: 'Favorite #1', value: favoriteCafeIds[0] ?? ''},
+		{id: 'favorite_cafe_2', label: 'Favorite #2', value: favoriteCafeIds[1] ?? ''},
+		{id: 'favorite_cafe_3', label: 'Favorite #3', value: favoriteCafeIds[2] ?? ''},
 	]
 
 	const hasSelectableCafes = selectableCafes.length > 0

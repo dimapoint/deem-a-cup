@@ -1,14 +1,14 @@
-import { StatsSection } from '@/components/stats/StatsSection'
-import { DeemList } from '@/components/profile/DeemList'
-import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { TopCafesList } from '@/components/profile/TopCafesList'
-import { EditProfileForm } from '@/components/profile/EditProfileForm'
-import { ManageFavoritesForm } from '@/components/profile/ManageFavoritesForm'
-import { ProfileInfo } from '@/components/profile/ProfileInfo'
-import { ProfileStatsGrid } from '@/components/profile/ProfileStatsGrid'
-import { UserLists } from '@/components/lists/UserLists'
-import { CreateListForm } from '@/components/lists/CreateListForm'
-import { getProfilePageData } from './data'
+import {StatsSection} from '@/components/stats/StatsSection'
+import {DeemList} from '@/components/profile/DeemList'
+import {ProfileHeader} from '@/components/profile/ProfileHeader'
+import {TopCafesList} from '@/components/profile/TopCafesList'
+import {EditProfileForm} from '@/components/profile/EditProfileForm'
+import {ManageFavoritesForm} from '@/components/profile/ManageFavoritesForm'
+import {ProfileInfo} from '@/components/profile/ProfileInfo'
+import {ProfileStatsGrid} from '@/components/profile/ProfileStatsGrid'
+import {UserLists} from '@/components/lists/UserLists'
+import {CreateListForm} from '@/components/lists/CreateListForm'
+import {getProfilePageData} from './data'
 
 const ProfilePage = async () => {
 	const {
@@ -48,7 +48,8 @@ const ProfilePage = async () => {
 							Past logs
 						</h2>
 						{deemsError ? (
-							<div className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
+							<div
+								className="rounded-lg border border-red-900/50 bg-[#1b1518] p-6 text-sm text-red-200">
 								We couldn&#39;t load your logs right now. Please try again.
 							</div>
 						) : (
@@ -59,7 +60,7 @@ const ProfilePage = async () => {
 						)}
 
 						<div className="pt-4">
-							<StatsSection stats={userStats} />
+							<StatsSection stats={userStats}/>
 						</div>
 
 						<div className="space-y-4 pt-4">
@@ -68,13 +69,13 @@ const ProfilePage = async () => {
 									Your Lists
 								</h3>
 							</div>
-							<UserLists lists={userLists} />
-							<CreateListForm />
+							<UserLists lists={userLists}/>
+							<CreateListForm/>
 						</div>
 					</div>
 
 					<aside className="space-y-4">
-						<EditProfileForm profile={profile} />
+						<EditProfileForm profile={profile}/>
 
 						<ProfileInfo
 							email={user.email}

@@ -11,11 +11,24 @@ interface LogCafeFormProps {
 	onSuccess?: () => void
 }
 
+/**
+ * Converts a Date object to a string suitable for an input[type="date"] value (YYYY-MM-DD).
+ * Adjusts for timezone offset to ensure the date is correct in the local timezone.
+ *
+ * @param date - The Date object to convert.
+ * @returns A string representing the date in YYYY-MM-DD format.
+ */
 const toDateInputValue = (date: Date) => {
 	const timezoneOffset = date.getTimezoneOffset() * 60000
 	return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10)
 }
 
+/**
+ * Formats a date string (YYYY-MM-DD) into a human-readable label (e.g., "Jan 1, 2023").
+ *
+ * @param value - The date string to format.
+ * @returns A formatted date string or "Pick a date" if invalid.
+ */
 const formatDateLabel = (value: string) => {
 	if (!value) return 'Pick a date'
 	const [year, month, day] = value.split('-').map(Number)
@@ -27,6 +40,9 @@ const formatDateLabel = (value: string) => {
 	}).format(new Date(year, month - 1, day))
 }
 
+/**
+ * A submit button component that displays a loading state while the form is submitting.
+ */
 function SubmitButton() {
 	const {pending} = useFormStatus()
 
@@ -34,7 +50,7 @@ function SubmitButton() {
 		<button
 			type="submit"
 			disabled={pending}
-			className="w-full rounded bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-50"
+			className="w-full rounded bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-50 transition-colors"
 		>
 			{pending ? 'Saving...' : 'Save'}
 		</button>
@@ -44,6 +60,16 @@ function SubmitButton() {
 const BREW_METHODS = ['Espresso', 'Flat White', 'V60', 'Chemex', 'Cold Brew', 'Aeropress']
 const BEAN_ORIGINS = ['Colombia', 'Etiopía', 'Brasil', 'Blend de la casa']
 
+/**
+ * A form component for logging a visit to a cafe.
+ * Allows users to rate the coffee, write a review, add tags, and specify details like brew method
+ * and bean origin.
+ *
+ * @param props - The component props.
+ * @param props.cafeId - The ID of the cafe being logged.
+ * @param props.cafeName - The name of the cafe being logged.
+ * @param props.onSuccess - A callback function to be called after a successful submission.
+ */
 export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormProps) {
 	const [rating, setRating] = useState(0)
 	const [hoverRating, setHoverRating] = useState(0)
@@ -54,11 +80,13 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 	const [brewMethod, setBrewMethod] = useState('')
 	const [beanOrigin, setBeanOrigin] = useState('')
 	const [visitedAt, setVisitedAt] = useState(() => toDateInputValue(new Date()))
+
 	const today = new Date()
 	const yesterday = new Date()
 	yesterday.setDate(yesterday.getDate() - 1)
 	const todayValue = toDateInputValue(today)
 	const yesterdayValue = toDateInputValue(yesterday)
+
 	const cupClassName = 'absolute inset-0 flex items-center justify-center text-2xl leading-none'
 	const halfClipStyle = {clipPath: 'inset(0 50% 0 0)'}
 
@@ -203,18 +231,21 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 				<textarea
 					id="review"
 					name="review"
-					className="rounded border border-gray-300 p-2 text-sm"
+					className="rounded border border-gray-300 p-2 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-200"
 					rows={3}
 					placeholder="How was it?"
 				/>
 			</div>
 
-			<div className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 px-3 py-2">
+			<div
+				className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 px-3 py-2">
 				<div className="flex flex-col">
 					<span className="text-sm font-medium">Add coffee details</span>
-					<span className="text-xs text-gray-500">Brew method, bean origin, roaster, price</span>
+					<span
+						className="text-xs text-gray-500">Brew method, bean origin, roaster, price</span>
 				</div>
-				<label className="flex items-center gap-2 text-sm font-medium text-gray-600">
+				<label
+					className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer">
 					<input
 						type="checkbox"
 						checked={showDetails}
@@ -280,7 +311,7 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 							name="roaster"
 							type="text"
 							placeholder="Roaster (e.g. Fuego, Puerto Blest)"
-							className="rounded border border-gray-300 p-2 text-sm w-full"
+							className="rounded border border-gray-300 p-2 text-sm w-full focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-200"
 						/>
 					</div>
 
@@ -293,7 +324,7 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 							type="number"
 							step="0.01"
 							placeholder="0.00"
-							className="rounded border border-gray-300 p-2 text-sm w-full"
+							className="rounded border border-gray-300 p-2 text-sm w-full focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-200"
 						/>
 					</div>
 				</div>

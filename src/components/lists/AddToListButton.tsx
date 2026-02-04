@@ -7,8 +7,7 @@ import {useFormStatus} from 'react-dom'
 
 interface AddToListButtonProps {
 	cafeId: string
-	userLists: ListWithCount[] // Pass lists to avoid fetching in client component if possible, or
-                               // fetch inside
+	userLists: ListWithCount[]
 }
 
 function SubmitButton() {

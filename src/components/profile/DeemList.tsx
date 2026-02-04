@@ -25,7 +25,8 @@ export function DeemList({deems, emptyMessage = "No logs yet."}: DeemListProps) 
 					key={deem.id}
 					className="rounded-lg border border-gray-800 bg-[#1e232b] p-4"
 				>
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+					<div
+						className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 						<div>
 							<h3 className="text-lg font-semibold text-white">
 								{deem.cafe?.name ?? 'Unknown Cafe'}

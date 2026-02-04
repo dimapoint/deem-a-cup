@@ -33,7 +33,8 @@ export function calculateProfileStats(deems: DeemWithCafe[]) {
 
 /**
  * Aggregates and retrieves cafe data for a user profile, including visited cafes and favorites.
- * Fetches missing favorite cafe details from the database if they haven't been visited (and thus aren't in the deems list).
+ * Fetches missing favorite cafe details from the database if they haven't been visited (and thus
+ * aren't in the deems list).
  *
  * @param profile - The user's profile data containing favorite cafe IDs.
  * @param deems - Array of deems (logs) associated with the user.
