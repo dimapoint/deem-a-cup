@@ -3,6 +3,16 @@
 import {createClient} from '@/utils/supabase/server'
 import {revalidatePath} from 'next/cache'
 
+/**
+ * Follows a user.
+ *
+ * Creates a new record in the 'follows' table linking the current authenticated user
+ * as the follower and the specified user as the one being followed.
+ * Revalidates the profile paths to reflect the change.
+ *
+ * @param followingId - The UUID of the user to follow.
+ * @throws {Error} If the user is not authenticated or if the database operation fails.
+ */
 export async function followUser(followingId: string) {
 	const supabase = await createClient()
 	const {
@@ -27,6 +37,16 @@ export async function followUser(followingId: string) {
 	revalidatePath(`/profile`)
 }
 
+/**
+ * Unfollows a user.
+ *
+ * Removes the record from the 'follows' table where the current authenticated user
+ * is the follower and the specified user is the one being followed.
+ * Revalidates the profile paths to reflect the change.
+ *
+ * @param followingId - The UUID of the user to unfollow.
+ * @throws {Error} If the user is not authenticated or if the database operation fails.
+ */
 export async function unfollowUser(followingId: string) {
 	const supabase = await createClient()
 	const {
