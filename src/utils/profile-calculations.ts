@@ -1,6 +1,15 @@
 import {SupabaseClient} from '@supabase/supabase-js'
 import {CafeCore, CafeSummary, DeemWithCafe, ProfileRow} from '@/types/profile'
 
+/**
+ * Calculates statistical metrics for a user's profile based on their logged deems.
+ *
+ * @param deems - Array of deems (logs) associated with the user, including cafe details.
+ * @returns An object containing:
+ *  - `averageRating`: The mean rating of all rated deems, or null if no ratings exist.
+ *  - `likedCount`: The total number of deems marked as liked.
+ *  - `uniqueCafeCount`: The count of distinct cafes visited.
+ */
 export function calculateProfileStats(deems: DeemWithCafe[]) {
 	const ratedDeems = deems
 		.map((deem) => deem.rating)
@@ -22,6 +31,19 @@ export function calculateProfileStats(deems: DeemWithCafe[]) {
 	}
 }
 
+/**
+ * Aggregates and retrieves cafe data for a user profile, including visited cafes and favorites.
+ * Fetches missing favorite cafe details from the database if they haven't been visited (and thus aren't in the deems list).
+ *
+ * @param profile - The user's profile data containing favorite cafe IDs.
+ * @param deems - Array of deems (logs) associated with the user.
+ * @param supabase - Supabase client instance for fetching additional cafe data.
+ * @returns A promise resolving to an object containing:
+ *  - `favoriteCafes`: List of CafeCore objects for the user's favorite cafes.
+ *  - `visitedCafes`: List of CafeCore objects for all cafes the user has deemed, sorted by name.
+ *  - `selectableCafes`: Combined list of favorites and visited cafes, unique and sorted by name.
+ *  - `favoriteCafeIds`: Array of IDs for the user's favorite cafes.
+ */
 export async function getProfileCafes(
 	profile: ProfileRow,
 	deems: DeemWithCafe[],
@@ -44,7 +66,7 @@ export async function getProfileCafes(
 
 	const favoriteCafeIds = Array.from(new Set(
 		(profile.favorite_cafe_ids ?? [])
-			.filter((id): id is string => true && id.length > 0)
+			.filter((id): id is string => id.length > 0)
 	))
 
 	const visitedCafeMap = new Map<string, CafeCore>()
