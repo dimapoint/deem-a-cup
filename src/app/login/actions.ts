@@ -5,7 +5,13 @@ import {redirect} from 'next/navigation'
 import {createClient} from '@/utils/supabase/server'
 import {headers} from 'next/headers'
 
-export async function login(formData: FormData) {
+export type ActionState = {
+	error?: string
+	notice?: string
+	success?: boolean
+} | null
+
+export async function login(prevState: ActionState, formData: FormData): Promise<ActionState> {
 	const supabase = await createClient()
 
 	const email = formData.get('email') as string
@@ -18,15 +24,14 @@ export async function login(formData: FormData) {
 
 	if (error) {
 		console.error('Login error:', error)
-		// For now, redirect to login with error param, or throw to be handled by error boundary
-		redirect('/login?error=Could not authenticate user')
+		return { error: 'Could not authenticate user' }
 	}
 
 	revalidatePath('/', 'layout')
 	redirect('/')
 }
 
-export async function signup(formData: FormData) {
+export async function signup(prevState: ActionState, formData: FormData): Promise<ActionState> {
 	const supabase = await createClient()
 
 	// Get origin to construct callback URL correctly for any environment
@@ -45,9 +50,9 @@ export async function signup(formData: FormData) {
 
 	if (error) {
 		console.error('Signup error:', error)
-		redirect('/login?error=Could not create user')
+		return { error: 'Could not create user' }
 	}
 
 	revalidatePath('/', 'layout')
-	redirect('/login?notice=confirm-email')
+	return { success: true, notice: 'You must confirm your email before logging in.' }
 }
