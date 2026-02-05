@@ -6,6 +6,10 @@ export type Json =
 	| { [key: string]: Json | undefined }
 	| Json[]
 
+/**
+ * Represents a coffee shop entity in the 'cafes' table.
+ * Stores the Google Places ID and basic location info.
+ */
 export interface Cafe {
 	id: string
 	name: string
@@ -17,6 +21,10 @@ export interface Cafe {
 	longitude?: number | null
 }
 
+/**
+ * Represents a 'Deem' - a user's log/review of a coffee visit.
+ * Corresponds to the 'deems' table.
+ */
 export interface Deem {
 	id: string
 	user_id: string
@@ -33,18 +41,28 @@ export interface Deem {
 	created_at: string
 }
 
+/**
+ * Join table for users tracking cafes they want to visit.
+ */
 export interface Watchlist {
 	user_id: string
 	cafe_id: string
 	created_at: string
 }
 
+/**
+ * Social connection between users.
+ */
 export interface Follow {
 	follower_id: string
 	following_id: string
 	created_at: string
 }
 
+/**
+ * User-created collections of cafes.
+ * Can be ordered (ranked) or unordered.
+ */
 export interface List {
 	id: string
 	user_id: string
@@ -55,6 +73,9 @@ export interface List {
 	updated_at: string
 }
 
+/**
+ * An individual entry in a user's List.
+ */
 export interface ListItem {
 	id: string
 	list_id: string
@@ -64,6 +85,9 @@ export interface ListItem {
 	created_at: string
 }
 
+/**
+ * User-uploaded photos associated with a specific cafe.
+ */
 export interface CafePhoto {
 	id: string
 	cafe_id: string
@@ -73,12 +97,18 @@ export interface CafePhoto {
 	created_at: string
 }
 
+/**
+ * Likes on cafe photos.
+ */
 export interface PhotoLike {
 	user_id: string
 	photo_id: string
 	created_at: string
 }
 
+/**
+ * Helper type for inserting a new Cafe.
+ */
 // Helper types for Insert operations (useful for Server Actions)
 export interface CafeInsert {
 	name: string
@@ -89,6 +119,9 @@ export interface CafeInsert {
 	longitude?: number | null
 }
 
+/**
+ * Helper type for inserting a new Deem (Log).
+ */
 export interface DeemInsert {
 	user_id: string
 	cafe_id: string
@@ -146,6 +179,10 @@ export interface PhotoLikeInsert {
 	created_at?: string
 }
 
+/**
+ * Public user profile information.
+ * Mirrors the 'profiles' table which extends the auth.users table.
+ */
 export interface Profile {
 	id: string
 	updated_at: string | null

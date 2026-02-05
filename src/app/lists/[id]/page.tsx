@@ -9,6 +9,12 @@ interface PageProps {
 	params: Promise<{ id: string }>
 }
 
+/**
+ * List Details Page
+ *
+ * Server Component that renders a specific user-created list.
+ * It displays the list metadata, the creator's info, and the collection of cafes.
+ */
 export default async function ListPage({params}: PageProps) {
 	const {id} = await params
 	const list = await getListDetails(id)
