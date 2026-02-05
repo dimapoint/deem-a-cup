@@ -4,18 +4,7 @@ import {Coffee, Heart, User} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import WatchlistButton from '@/components/cafes/WatchlistButton'
-
-// Helper to format date
-const formatDate = (value: string) => {
-	const [datePart] = value.split('T')
-	const [year, month, day] = datePart.split('-').map(Number)
-	const date = year && month && day ? new Date(year, month - 1, day) : new Date(value)
-	return new Intl.DateTimeFormat('en-US', {
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric'
-	}).format(date)
-}
+import {formatDate} from '@/utils/date'
 
 export function DeemCard({deem}: { deem: DeemWithDetails }) {
 	const {cafe, profile} = deem

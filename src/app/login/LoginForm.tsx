@@ -1,12 +1,12 @@
 'use client'
 
 import {useActionState} from 'react'
-import {login, signup, ActionState} from './actions'
+import {ActionState, login, signup} from './actions'
 
 export function LoginForm({
-	initialError,
-	initialNotice,
-}: {
+	                          initialError,
+	                          initialNotice,
+                          }: {
 	initialError?: string | null
 	initialNotice?: string | null
 }) {

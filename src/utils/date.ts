@@ -3,16 +3,24 @@
  * Handles ISO strings by extracting the date part to avoid timezone issues.
  *
  * @param value - The date string to format (e.g., "2023-01-01T00:00:00Z" or "2023-01-01").
+ * @param options - Optional Intl.DateTimeFormatOptions to override defaults.
  * @returns The formatted date string.
  */
-export const formatDate = (value: string) => {
+export const formatDate = (value: string, options: Intl.DateTimeFormatOptions = {}) => {
+	if (!value) return ''
 	const [datePart] = value.split('T')
 	const [year, month, day] = datePart.split('-').map(Number)
 	const date = year && month && day ? new Date(year, month - 1, day) : new Date(value)
-	return new Intl.DateTimeFormat('en-US', {
+
+	const defaultOptions: Intl.DateTimeFormatOptions = {
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric'
+	}
+
+	return new Intl.DateTimeFormat('en-US', {
+		...defaultOptions,
+		...options
 	}).format(date)
 }
 

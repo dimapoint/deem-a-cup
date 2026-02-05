@@ -103,7 +103,7 @@ function RatingDistribution({stats}: { stats: UserStats }) {
 								<div
 									className="w-full max-w-[20px] bg-gray-700 rounded-t-sm hover:bg-orange-400 transition-colors"
 									style={{height: `${visualHeight || 2}%`}} // Min 2% for
-									                                          // visibility
+									// visibility
 								/>
 							</div>
 							<span className="text-xs text-gray-500 font-medium">{rating}</span>

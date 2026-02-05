@@ -3,6 +3,7 @@ import {notFound} from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import {Calendar, User} from 'lucide-react'
+import {formatDate} from '@/utils/date'
 
 interface PageProps {
 	params: Promise<{ id: string }>
@@ -15,13 +16,6 @@ export default async function ListPage({params}: PageProps) {
 	if (!list) {
 		notFound()
 	}
-
-	const formatDate = (value: string) =>
-		new Intl.DateTimeFormat('en-US', {
-			month: 'long',
-			day: 'numeric',
-			year: 'numeric',
-		}).format(new Date(value))
 
 	return (
 		<main className="min-h-screen bg-[#14181c] text-gray-100 p-4 md:p-8">
@@ -54,7 +48,7 @@ export default async function ListPage({params}: PageProps) {
 							</Link>
 							<span className="flex items-center gap-1">
 								<Calendar size={14}/>
-								{formatDate(list.created_at)}
+								{formatDate(list.created_at, {month: 'long'})}
 							</span>
 							<span
 								className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-300">

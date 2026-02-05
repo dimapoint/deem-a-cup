@@ -24,7 +24,7 @@ export async function login(prevState: ActionState, formData: FormData): Promise
 
 	if (error) {
 		console.error('Login error:', error)
-		return { error: 'Could not authenticate user' }
+		return {error: 'Could not authenticate user'}
 	}
 
 	revalidatePath('/', 'layout')
@@ -50,9 +50,9 @@ export async function signup(prevState: ActionState, formData: FormData): Promis
 
 	if (error) {
 		console.error('Signup error:', error)
-		return { error: 'Could not create user' }
+		return {error: 'Could not create user'}
 	}
 
 	revalidatePath('/', 'layout')
-	return { success: true, notice: 'You must confirm your email before logging in.' }
+	return {success: true, notice: 'You must confirm your email before logging in.'}
 }

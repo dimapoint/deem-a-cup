@@ -4,6 +4,7 @@ import {logCoffee} from '@/app/actions/deem'
 import React, {useState} from 'react'
 import {useFormStatus} from 'react-dom'
 import {CalendarDays, Heart, X} from 'lucide-react'
+import {formatDate} from '@/utils/date'
 
 interface LogCafeFormProps {
 	cafeId: string
@@ -21,23 +22,6 @@ interface LogCafeFormProps {
 const toDateInputValue = (date: Date) => {
 	const timezoneOffset = date.getTimezoneOffset() * 60000
 	return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10)
-}
-
-/**
- * Formats a date string (YYYY-MM-DD) into a human-readable label (e.g., "Jan 1, 2023").
- *
- * @param value - The date string to format.
- * @returns A formatted date string or "Pick a date" if invalid.
- */
-const formatDateLabel = (value: string) => {
-	if (!value) return 'Pick a date'
-	const [year, month, day] = value.split('-').map(Number)
-	if (!year || !month || !day) return 'Pick a date'
-	return new Intl.DateTimeFormat('en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	}).format(new Date(year, month - 1, day))
 }
 
 /**
@@ -175,7 +159,7 @@ export default function LogCafeForm({cafeId, cafeName, onSuccess}: LogCafeFormPr
 				</div>
 				<p className="text-xs text-gray-500">
 					Selected: <span
-					className="font-medium text-gray-700">{formatDateLabel(visitedAt)}</span>
+					className="font-medium text-gray-700">{formatDate(visitedAt) || 'Pick a date'}</span>
 				</p>
 			</div>
 
