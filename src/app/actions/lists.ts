@@ -40,6 +40,16 @@ export async function createList(formData: FormData): Promise<void> {
 		throw new Error('Failed to create list')
 	}
 
+	// Fetch username for revalidation
+	const {data: profile} = await supabase
+		.from('profiles')
+		.select('username')
+		.eq('id', user.id)
+		.single()
+
+	if (profile?.username) {
+		revalidatePath(`/u/${profile.username}`)
+	}
 	revalidatePath('/profile')
 	revalidatePath('/lists')
 }

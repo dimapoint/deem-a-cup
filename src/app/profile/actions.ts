@@ -52,6 +52,16 @@ export async function updateFavoriteCafes(formData: FormData) {
 		throw new Error('Error saving your favorite cafes')
 	}
 
+	// Fetch username for revalidation
+	const {data: profile} = await supabase
+		.from('profiles')
+		.select('username')
+		.eq('id', user.id)
+		.single()
+
+	if (profile?.username) {
+		revalidatePath(`/u/${profile.username}`)
+	}
 	revalidatePath('/profile')
 }
 
@@ -98,6 +108,9 @@ export async function updateProfile(formData: FormData) {
 		throw new Error('Error updating profile')
 	}
 
+	if (username) {
+		revalidatePath(`/u/${username}`)
+	}
 	revalidatePath('/profile')
 	revalidatePath('/') // Revalidate home feed to show new name
 }

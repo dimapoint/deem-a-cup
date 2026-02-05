@@ -1,19 +1,19 @@
-import { UserMinus, UserPlus } from 'lucide-react'
+import {UserMinus, UserPlus} from 'lucide-react'
 
 interface FollowButtonContentProps {
-  isFollowing: boolean
+	isFollowing: boolean
 }
 
-export function FollowButtonContent({ isFollowing }: FollowButtonContentProps) {
-  return isFollowing ? (
-    <>
-      <UserMinus size={14} />
-      Unfollow
-    </>
-  ) : (
-    <>
-      <UserPlus size={14} />
-      Follow
-    </>
-  )
+export function FollowButtonContent({isFollowing}: FollowButtonContentProps) {
+	return isFollowing ? (
+		<>
+			<UserMinus size={14}/>
+			Unfollow
+		</>
+	) : (
+		<>
+			<UserPlus size={14}/>
+			Follow
+		</>
+	)
 }

@@ -1,6 +1,8 @@
 import {createClient} from '@/utils/supabase/server'
 import {DeemWithCafe, ProfileRow} from '@/types/profile'
 import {calculateProfileStats, getProfileCafes} from '@/utils/profile-calculations'
+import {getUserLists} from '@/app/actions/lists'
+import {getUserStats} from '@/app/actions/stats'
 
 export async function fetchProfilePageData(username: string) {
 	const supabase = await createClient()
@@ -15,7 +17,7 @@ export async function fetchProfilePageData(username: string) {
 	])
 
 	const currentUser = userResult.data.user
-	const profile = profileResult.data as ProfileRow | null
+	const profile = profileResult.data as ProfileRow & { created_at?: string } | null
 
 	if (!profile) {
 		return null
@@ -58,7 +60,13 @@ export async function fetchProfilePageData(username: string) {
 
 	// Calculate stats and fetch extra cafe info if needed
 	const stats = calculateProfileStats(deems)
-	const {favoriteCafes} = await getProfileCafes(profile, deems, supabase)
+	const {favoriteCafes, selectableCafes, favoriteCafeIds} = await getProfileCafes(profile, deems, supabase)
+
+	// Fetch lists and stats for everyone, not just own profile
+	const [userLists, userStats] = await Promise.all([
+		getUserLists(profile.id),
+		getUserStats(profile.id)
+	])
 
 	return {
 		currentUser,
@@ -68,6 +76,10 @@ export async function fetchProfilePageData(username: string) {
 		deems,
 		deemsError,
 		stats,
-		favoriteCafes
+		favoriteCafes,
+		selectableCafes,
+		favoriteCafeIds,
+		userLists,
+		userStats
 	}
 }

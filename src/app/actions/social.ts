@@ -33,7 +33,16 @@ export async function followUser(followingId: string) {
 		throw new Error('Failed to follow user')
 	}
 
-	revalidatePath(`/u/${followingId}`)
+	// Fetch username for revalidation
+	const {data: profile} = await supabase
+		.from('profiles')
+		.select('username')
+		.eq('id', followingId)
+		.single()
+
+	if (profile?.username) {
+		revalidatePath(`/u/${profile.username}`)
+	}
 	revalidatePath(`/profile`)
 }
 
@@ -68,6 +77,15 @@ export async function unfollowUser(followingId: string) {
 		throw new Error('Failed to unfollow user')
 	}
 
-	revalidatePath(`/u/${followingId}`)
+	// Fetch username for revalidation
+	const {data: profile} = await supabase
+		.from('profiles')
+		.select('username')
+		.eq('id', followingId)
+		.single()
+
+	if (profile?.username) {
+		revalidatePath(`/u/${profile.username}`)
+	}
 	revalidatePath(`/profile`)
 }

@@ -1,19 +1,19 @@
-import { ReactNode } from 'react'
+import {ReactNode} from 'react'
 
 interface InfoRowProps {
-  icon: ReactNode
-  label: string
-  value: string | number
+	icon: ReactNode
+	label: string
+	value: string | number
 }
 
-export function InfoRow({ icon, label, value }: InfoRowProps) {
-  return (
-    <div className="flex items-center justify-between gap-3">
+export function InfoRow({icon, label, value}: InfoRowProps) {
+	return (
+		<div className="flex items-center justify-between gap-3">
       <span className="flex items-center gap-2">
         {icon}
-        {label}
+	      {label}
       </span>
-      <span className="text-gray-200">{value}</span>
-    </div>
-  )
+			<span className="text-gray-200">{value}</span>
+		</div>
+	)
 }
