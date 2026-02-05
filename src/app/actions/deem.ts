@@ -1,216 +1,181 @@
 'use server'
 
-import {createClient} from '@/utils/supabase/server'
-import type {Cafe, Deem, Profile, Watchlist} from '@/types/database'
-import {revalidatePath} from 'next/cache'
+import { createClient } from '@/utils/supabase/server'
+import type { Cafe, Deem, Profile, Watchlist } from '@/types/database'
+import { revalidatePath } from 'next/cache'
 
-export async function logCoffee(formData: FormData) {
-	const supabase = await createClient()
+// --- Types ---
 
-	const parseOptionalNumber = (value: FormDataEntryValue | null) => {
-		if (typeof value !== 'string') return null
-		const trimmed = value.trim()
-		if (!trimmed) return null
-		const parsed = Number(trimmed)
-		return Number.isFinite(parsed) ? parsed : null
-	}
-
-	const parseOptionalCurrency = (value: FormDataEntryValue | null) => {
-		if (typeof value !== 'string') return null
-		const cleaned = value.trim().replace(/[^\d.-]/g, '')
-		if (!cleaned) return null
-		const parsed = Number(cleaned)
-		return Number.isFinite(parsed) ? parsed : null
-	}
-
-	const {
-		data: {user},
-	} = await supabase.auth.getUser()
-
-	if (!user) {
-		throw new Error('You must be logged in to log a visit')
-	}
-
-	const cafeIdRaw = formData.get('cafe_id')
-	if (typeof cafeIdRaw !== 'string' || !cafeIdRaw) {
-		throw new Error('Missing cafe id')
-	}
-
-	const cafe_id = cafeIdRaw
-	const ratingRaw = formData.get('rating')
-	const reviewRaw = formData.get('review')
-	const likedRaw = formData.get('liked')
-	const visitedAtRaw = formData.get('visited_at') as string
-	const tagsRaw = formData.get('tags') as string
-	const brewMethod = formData.get('brew_method') as string
-	const beanOrigin = formData.get('bean_origin') as string
-	const roaster = formData.get('roaster') as string
-	const priceRaw = formData.get('price')
-
-	const rating = parseOptionalNumber(ratingRaw)
-	const price = parseOptionalCurrency(priceRaw)
-	const liked = likedRaw === 'on'
-	const review = typeof reviewRaw === 'string' && reviewRaw.trim() ? reviewRaw.trim() : null
-	let tags: string[] = []
-
-	if (tagsRaw.trim()) {
-		try {
-			const parsed = JSON.parse(tagsRaw)
-			if (Array.isArray(parsed)) {
-				tags = parsed.filter((tag) => typeof tag === 'string' && tag.trim().length > 0)
-			}
-		} catch (error) {
-			console.error('Error parsing tags:', error)
-		}
-	}
-
-	const {error} = await supabase.from('deems').insert({
-		user_id: user.id,
-		cafe_id,
-		rating,
-		review,
-		brew_method: brewMethod || null,
-		bean_origin: beanOrigin || null,
-		roaster: roaster || null,
-		tags,
-		price,
-		liked,
-		visited_at: visitedAtRaw || undefined
-	})
-
-	if (error) {
-		console.error('Error logging coffee:', error)
-		throw new Error(error.message || 'Error saving visit')
-	}
-
-	revalidatePath('/')
-}
-
-export type DeemWithDetails = {
-	id: string
-	rating: number | null
-	review: string | null
-	liked: boolean | null
-	tags: string[] | null
-	visited_at: string
-	created_at: string
-	user_id: string
-	cafe: {
-		id: string
-		name: string
-		place_id: string
-		address: string | null
-		isSaved: boolean
-	}
-	profile: {
-		full_name: string | null
-		username: string | null
-		avatar_url: string | null
-	}
+export type DeemWithDetails = Deem & {
+  cafe: Pick<Cafe, 'id' | 'name' | 'place_id' | 'address'> & {
+    isSaved: boolean
+  }
+  profile: Pick<Profile, 'full_name' | 'username' | 'avatar_url'>
 }
 
 type CafeSummary = Pick<Cafe, 'id' | 'name' | 'place_id' | 'address'>
 type ProfileSummary = Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url'>
 type WatchlistCafe = Pick<Watchlist, 'cafe_id'>
-type QueryResult<T> = { data: T[] | null; error: unknown }
 
+// --- Helpers ---
+
+function parseString(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed || null
+}
+
+function parseNumber(value: FormDataEntryValue | null): number | null {
+  const str = parseString(value)
+  if (!str) return null
+  const parsed = Number(str)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function parseCurrency(value: FormDataEntryValue | null): number | null {
+  if (typeof value !== 'string') return null
+  const cleaned = value.trim().replace(/[^\d.-]/g, '')
+  if (!cleaned) return null
+  const parsed = Number(cleaned)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function parseTags(value: FormDataEntryValue | null): string[] {
+  const str = parseString(value)
+  if (!str) return []
+  try {
+    const parsed = JSON.parse(str)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((tag): tag is string => typeof tag === 'string' && tag.trim().length > 0)
+    }
+  } catch (error) {
+    console.error('Error parsing tags:', error)
+  }
+  return []
+}
+
+// --- Actions ---
+
+/**
+ * Logs a new coffee visit (Deem).
+ *
+ * Validates the user session and form data before inserting into the database.
+ * Revalidates the home path upon success.
+ *
+ * @param formData - The form data containing visit details.
+ * @throws Error if the user is not logged in or if the cafe_id is missing.
+ */
+export async function logCoffee(formData: FormData) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('You must be logged in to log a visit')
+  }
+
+  const cafeId = parseString(formData.get('cafe_id'))
+  if (!cafeId) {
+    throw new Error('Missing cafe id')
+  }
+
+  const deemData = {
+    user_id: user.id,
+    cafe_id: cafeId,
+    rating: parseNumber(formData.get('rating')),
+    review: parseString(formData.get('review')),
+    brew_method: parseString(formData.get('brew_method')),
+    bean_origin: parseString(formData.get('bean_origin')),
+    roaster: parseString(formData.get('roaster')),
+    tags: parseTags(formData.get('tags')),
+    price: parseCurrency(formData.get('price')),
+    liked: formData.get('liked') === 'on',
+    visited_at: parseString(formData.get('visited_at')) || new Date().toISOString(),
+  }
+
+  const { error } = await supabase.from('deems').insert(deemData)
+
+  if (error) {
+    console.error('Error logging coffee:', error)
+    throw new Error(error.message || 'Error saving visit')
+  }
+
+  revalidatePath('/')
+}
+
+/**
+ * Fetches the most recent Deems (visits) with related Cafe and Profile details.
+ *
+ * Uses a batch fetching strategy to avoid N+1 query problems:
+ * 1. Fetches recent Deems.
+ * 2. Collects unique Cafe IDs and User IDs.
+ * 3. Fetches related Cafes, Profiles, and the current user's Watchlist in parallel.
+ * 4. Maps the results back to the Deems.
+ *
+ * @returns A list of Deems with expanded details.
+ */
 export async function getRecentDeems(): Promise<DeemWithDetails[]> {
-	const supabase = await createClient()
+  const supabase = await createClient()
 
-	try {
-		// 1. Fetch Deems first
-		const {data: deemsData, error: deemsError} = await supabase
-			.from('deems')
-			.select('*')
-			.order('created_at', {ascending: false})
-			.limit(20)
+  try {
+    // 1. Fetch Deems
+    const { data: deemsData, error: deemsError } = await supabase
+      .from('deems')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20)
 
-		if (deemsError) {
-			console.error('Error fetching deems table:', deemsError)
-			return []
-		}
+    if (deemsError) {
+      console.error('Error fetching deems table:', deemsError)
+      return []
+    }
 
-		const deems = (deemsData ?? []) as Deem[]
+    const deems = (deemsData ?? []) as Deem[]
+    if (deems.length === 0) return []
 
-		if (deems.length === 0) {
-			return []
-		}
+    // 2. Extract IDs for batch fetching
+    const cafeIds = Array.from(new Set(deems.map((d) => d.cafe_id)))
+    const userIds = Array.from(new Set(deems.map((d) => d.user_id)))
 
-		// 2. Extract IDs for batch fetching
-		const cafeIds = Array.from(new Set(deems.map((deem) => deem.cafe_id)))
-		const userIds = Array.from(new Set(deems.map((deem) => deem.user_id)))
+    // 3. Fetch related data
+    const { data: { user } } = await supabase.auth.getUser()
 
-		// 3. Fetch related data in parallel (including watchlist)
-		const {data: {user}} = await supabase.auth.getUser()
+    const [cafesResult, profilesResult, watchlistResult] = await Promise.all([
+      supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
+      supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds),
+      user
+        ? supabase.from('watchlist').select('cafe_id').eq('user_id', user.id).in('cafe_id', cafeIds)
+        : Promise.resolve({ data: [], error: null }),
+    ])
 
-		const promises: Array<PromiseLike<QueryResult<unknown>>> = [
-			supabase.from('cafes').select('id, name, place_id, address').in('id', cafeIds),
-			supabase.from('profiles').select('id, full_name, username, avatar_url').in('id', userIds)
-		]
+    if (cafesResult.error) console.error('Error fetching cafes:', cafesResult.error)
+    if (profilesResult.error) console.error('Error fetching profiles:', profilesResult.error)
 
-		if (user) {
-			promises.push(
-				supabase.from('watchlist')
-					.select('cafe_id')
-					.eq('user_id', user.id)
-					.in('cafe_id', cafeIds)
-			)
-		}
+    const cafes = (cafesResult.data as CafeSummary[]) ?? []
+    const profiles = (profilesResult.data as ProfileSummary[]) ?? []
+    const watchlist = (watchlistResult.data as WatchlistCafe[]) ?? []
 
-		const results = await Promise.all(promises)
-		const cafesResult = results[0] as QueryResult<CafeSummary>
-		const profilesResult = results[1] as QueryResult<ProfileSummary>
-		const watchlistResult: QueryResult<WatchlistCafe> = user ? (results[2] as QueryResult<WatchlistCafe>) : {
-			data: [],
-			error: null
-		}
+    const cafeMap = new Map(cafes.map((c) => [c.id, c]))
+    const profileMap = new Map(profiles.map((p) => [p.id, p]))
+    const watchlistSet = new Set(watchlist.map((w) => w.cafe_id))
 
-		if (cafesResult.error) {
-			console.error('Error fetching cafes:', cafesResult.error)
-		}
-		if (profilesResult.error) {
-			console.error('Error fetching profiles:', profilesResult.error)
-		}
+    // 4. Map data back
+    return deems.map((deem) => {
+      const cafe = cafeMap.get(deem.cafe_id)
+      const profile = profileMap.get(deem.user_id)
 
-		const cafes = cafesResult.data ?? []
-		const profiles = profilesResult.data ?? []
-		const watchlist = watchlistResult.data ?? []
-		const watchlistSet = new Set(watchlist.map((w) => w.cafe_id))
-
-		// 4. Map data back to deems
-		const cafeMap = new Map(cafes.map((c) => [c.id, c]))
-		const profileMap = new Map(profiles.map((p) => [p.id, p]))
-
-		const deemsWithDetails = deems.map((deem) => {
-			const cafe = cafeMap.get(deem.cafe_id)
-			const profile = profileMap.get(deem.user_id)
-
-			// If for some reason the relation is missing (shouldn't happen with FKs), provide
-			// fallback
-			return {
-				...deem,
-				cafe: cafe ? {
-					...cafe,
-					isSaved: watchlistSet.has(cafe.id)
-				} : {
-					id: deem.cafe_id,
-					name: 'Unknown Cafe',
-					place_id: '',
-					address: null,
-					isSaved: false
-				},
-				profile: profile || {
-					full_name: 'Unknown User',
-					username: 'unknown',
-					avatar_url: null
-				}
-			}
-		})
-
-		return deemsWithDetails as DeemWithDetails[]
-
-	} catch (e) {
-		console.error('Unexpected error in getRecentDeems:', e)
-		return []
-	}
+      return {
+        ...deem,
+        cafe: cafe
+          ? { ...cafe, isSaved: watchlistSet.has(cafe.id) }
+          : { id: deem.cafe_id, name: 'Unknown Cafe', place_id: '', address: null, isSaved: false },
+        profile: profile ?? { full_name: 'Unknown User', username: 'unknown', avatar_url: null },
+      }
+    })
+  } catch (e) {
+    console.error('Unexpected error in getRecentDeems:', e)
+    return []
+  }
 }
