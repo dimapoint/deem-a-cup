@@ -2,11 +2,12 @@
 
 import {revalidatePath} from 'next/cache'
 import {createClient} from '@/utils/supabase/server'
+import {parseString} from '@/utils/parsers'
 
 const sanitizeFavoriteIds = (values: Array<FormDataEntryValue | null>) => {
 	const cleaned = values
-		.map((value) => (typeof value === 'string' ? value.trim() : ''))
-		.filter((value) => value.length > 0)
+		.map(parseString)
+		.filter((value): value is string => value !== null)
 
 	return Array.from(new Set(cleaned)).slice(0, 3)
 }
@@ -65,9 +66,9 @@ export async function updateProfile(formData: FormData) {
 		throw new Error('You must be logged in to update your profile')
 	}
 
-	const fullName = formData.get('full_name') as string | null
-	const username = formData.get('username') as string | null
-	const website = formData.get('website') as string | null
+	const fullName = parseString(formData.get('full_name'))
+	const username = parseString(formData.get('username'))
+	const website = parseString(formData.get('website'))
 
 	// Basic validation
 	if (username && username.length < 3) {
@@ -83,9 +84,9 @@ export async function updateProfile(formData: FormData) {
 		updated_at: new Date().toISOString(),
 	}
 
-	if (typeof fullName === 'string') updates.full_name = fullName
-	if (typeof username === 'string') updates.username = username
-	if (typeof website === 'string') updates.website = website
+	if (fullName !== null) updates.full_name = fullName
+	if (username !== null) updates.username = username
+	if (website !== null) updates.website = website
 
 	const {error} = await supabase.from('profiles').update(updates).eq('id', user.id)
 

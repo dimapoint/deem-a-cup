@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { Cafe } from '@/types/database'
 import { getPlaceLocation } from '@/app/actions/places'
+import { parseString } from '@/utils/parsers'
 
 /**
  * Retrieves an existing cafe by its Google Place ID or creates a new one if it doesn't exist.
@@ -70,9 +71,9 @@ export async function getOrCreateCafe(
  * @throws Error if the name is missing.
  */
 export async function createCafe(formData: FormData): Promise<Cafe> {
-  const name = formData.get('name') as string
-  const address = formData.get('address') as string
-  const placeIdInput = formData.get('place_id') as string
+  const name = parseString(formData.get('name'))
+  const address = parseString(formData.get('address'))
+  const placeIdInput = parseString(formData.get('place_id'))
 
   if (!name) {
     throw new Error('Cafe name is required')
