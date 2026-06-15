@@ -704,4 +704,140 @@ ALTER TABLE photo_likes
   ADD CONSTRAINT photo_likes_user_id_fkey
   FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
 
+-- ===== MIGRATION: Table activities =====
+
+CREATE TABLE IF NOT EXISTS activities (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id    uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  verb        text        NOT NULL,
+  -- verb values: 'deem' | 'list_created' | 'list_updated' | 'followed' | 'photo_uploaded'
+  object_id   uuid        NOT NULL,
+  object_type text        NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Activities are viewable by everyone" ON activities;
+CREATE POLICY "Activities are viewable by everyone"
+  ON activities FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert their own activities" ON activities;
+CREATE POLICY "Users can insert their own activities"
+  ON activities FOR INSERT
+  WITH CHECK (auth.uid() = actor_id);
+
+DROP POLICY IF EXISTS "Users can delete their own activities" ON activities;
+CREATE POLICY "Users can delete their own activities"
+  ON activities FOR DELETE
+  USING (auth.uid() = actor_id);
+
+CREATE INDEX IF NOT EXISTS idx_activities_actor_created
+  ON activities(actor_id, created_at DESC);
+
+NOTIFY pgrst, 'reload schema';
+
+-- ===== MIGRATION: Table deem_comments =====
+
+CREATE TABLE IF NOT EXISTS deem_comments (
+  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  deem_id    uuid        NOT NULL REFERENCES deems(id) ON DELETE CASCADE,
+  user_id    uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content    text        NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE deem_comments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Deem comments are viewable by everyone" ON deem_comments;
+CREATE POLICY "Deem comments are viewable by everyone"
+  ON deem_comments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert their own comments" ON deem_comments;
+CREATE POLICY "Users can insert their own comments"
+  ON deem_comments FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own comments" ON deem_comments;
+CREATE POLICY "Users can delete their own comments"
+  ON deem_comments FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_deem_comments_deem
+  ON deem_comments(deem_id, created_at ASC);
+
+NOTIFY pgrst, 'reload schema';
+
+-- ===== MIGRATION: Table notifications =====
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  actor_id    uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  type        text        NOT NULL,
+  -- type values: 'new_deem' | 'new_comment' | 'new_follow' | 'new_photo' | 'new_list'
+  object_id   uuid        NOT NULL,
+  object_type text        NOT NULL,
+  read        boolean     NOT NULL DEFAULT false,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read their own notifications" ON notifications;
+CREATE POLICY "Users can read their own notifications"
+  ON notifications FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can mark their notifications as read" ON notifications;
+CREATE POLICY "Users can mark their notifications as read"
+  ON notifications FOR UPDATE
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own notifications" ON notifications;
+CREATE POLICY "Users can delete their own notifications"
+  ON notifications FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_read
+  ON notifications(user_id, read, created_at DESC);
+
+-- Function: insert a single notification (bypasses INSERT RLS)
+CREATE OR REPLACE FUNCTION insert_notification(
+  p_user_id    uuid,
+  p_actor_id   uuid,
+  p_type       text,
+  p_object_id  uuid,
+  p_object_type text
+) RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  INSERT INTO notifications (user_id, actor_id, type, object_id, object_type)
+  VALUES (p_user_id, p_actor_id, p_type, p_object_id, p_object_type);
+END;
+$$;
+
+-- Function: bulk-insert notifications for all followers of an actor
+CREATE OR REPLACE FUNCTION insert_notifications_for_followers(
+  p_actor_id    uuid,
+  p_type        text,
+  p_object_id   uuid,
+  p_object_type text
+) RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  INSERT INTO notifications (user_id, actor_id, type, object_id, object_type)
+  SELECT f.follower_id, p_actor_id, p_type, p_object_id, p_object_type
+  FROM follows f
+  WHERE f.following_id = p_actor_id
+    AND f.follower_id != p_actor_id;
+END;
+$$;
+
+NOTIFY pgrst, 'reload schema';
+
 NOTIFY pgrst, 'reload schema';
