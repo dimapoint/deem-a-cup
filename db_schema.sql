@@ -684,3 +684,24 @@ alter table deems
 -- Reload schema cache to ensure PostgREST picks up the new columns
 NOTIFY
 pgrst, 'reload schema';
+
+-- ===== MIGRATION: Fix FK inconsistencies =====
+
+-- Fix watchlist.user_id: was referencing auth.users, now references profiles(id)
+-- Drop and recreate the FK constraint.
+ALTER TABLE watchlist
+  DROP CONSTRAINT IF EXISTS watchlist_user_id_fkey;
+
+ALTER TABLE watchlist
+  ADD CONSTRAINT watchlist_user_id_fkey
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
+
+-- Fix photo_likes.user_id: was referencing auth.users, now references profiles(id)
+ALTER TABLE photo_likes
+  DROP CONSTRAINT IF EXISTS photo_likes_user_id_fkey;
+
+ALTER TABLE photo_likes
+  ADD CONSTRAINT photo_likes_user_id_fkey
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
+
+NOTIFY pgrst, 'reload schema';
