@@ -2,7 +2,9 @@ import {describe, it, expect, mock} from 'bun:test'
 import {insertActivity} from '@/app/actions/activity'
 import type {SupabaseClient} from '@supabase/supabase-js'
 
-function makeMockSupabase(insertResult = {error: null}) {
+type MockResult = {error: {message: string} | null}
+
+function makeMockSupabase(insertResult: MockResult = {error: null}) {
   const mockInsert = mock(() => Promise.resolve(insertResult))
   const mockFrom = mock(() => ({insert: mockInsert}))
   return {supabase: {from: mockFrom} as unknown as SupabaseClient, mockFrom, mockInsert}
@@ -24,7 +26,7 @@ describe('insertActivity', () => {
   })
 
   it('throws if Supabase returns an error', async () => {
-    const {supabase} = makeMockSupabase({error: {message: 'DB error'}} as any)
+    const {supabase} = makeMockSupabase({error: {message: 'DB error'}})
 
     expect(insertActivity(supabase, 'a', 'deem', 'b', 'deem')).rejects.toThrow('DB error')
   })

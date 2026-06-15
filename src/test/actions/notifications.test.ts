@@ -5,7 +5,9 @@ import {
 } from '@/app/actions/notifications'
 import type {SupabaseClient} from '@supabase/supabase-js'
 
-function makeMockRpc(result = {error: null}) {
+type MockResult = {error: {message: string} | null}
+
+function makeMockRpc(result: MockResult = {error: null}) {
   const mockRpc = mock(() => Promise.resolve(result))
   return {supabase: {rpc: mockRpc} as unknown as SupabaseClient, mockRpc}
 }
@@ -25,7 +27,7 @@ describe('insertNotificationsForFollowers', () => {
   })
 
   it('throws if RPC returns an error', async () => {
-    const {supabase} = makeMockRpc({error: {message: 'RPC error'}} as any)
+    const {supabase} = makeMockRpc({error: {message: 'RPC error'}})
 
     expect(
       insertNotificationsForFollowers(supabase, 'a', 'new_deem', 'b', 'deem')
