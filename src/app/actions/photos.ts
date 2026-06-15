@@ -3,6 +3,8 @@
 import {createClient} from '@/utils/supabase/server'
 import {CafePhoto} from '@/types/database'
 import {revalidatePath} from 'next/cache'
+import {insertActivity} from '@/app/actions/activity'
+import {insertNotificationsForFollowers} from '@/app/actions/notifications'
 
 export interface CafePhotoWithStats extends CafePhoto {
 	like_count: number
@@ -60,17 +62,27 @@ export async function uploadCafePhoto(formData: FormData) {
 		.getPublicUrl(filePath)
 
 	// 2. Insert into DB
-	const {error: dbError} = await supabase.from('cafe_photos').insert({
-		cafe_id: cafeId,
-		user_id: user.id,
-		url: publicUrlData.publicUrl,
-		caption: caption || null
-	})
+	const {data: photoRow, error: dbError} = await supabase
+		.from('cafe_photos')
+		.insert({
+			cafe_id: cafeId,
+			user_id: user.id,
+			url: publicUrlData.publicUrl,
+			caption: caption || null
+		})
+		.select('id')
+		.single()
 
 	if (dbError) {
 		console.error('Error saving photo metadata:', dbError)
 		throw new Error('Failed to save photo info')
 	}
+
+	// Fire-and-forget: don't fail uploadCafePhoto if side-effects fail
+	Promise.all([
+		insertActivity(supabase, user.id, 'photo_uploaded', photoRow.id, 'photo'),
+		insertNotificationsForFollowers(supabase, user.id, 'new_photo', photoRow.id, 'photo'),
+	]).catch((e) => console.error('Activity/notification insert failed:', e))
 
 	revalidatePath(`/cafe/${cafeId}`)
 }
