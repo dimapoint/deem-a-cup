@@ -3,6 +3,8 @@
 import {createClient} from '@/utils/supabase/server'
 import {revalidatePath} from 'next/cache'
 import type {Cafe, List, ListItem, Profile} from '@/types/database'
+import {insertActivity} from '@/app/actions/activity'
+import {insertNotificationsForFollowers} from '@/app/actions/notifications'
 
 /**
  * Creates a new list for the authenticated user.
@@ -28,17 +30,27 @@ export async function createList(formData: FormData): Promise<void> {
 		throw new Error('Title is required')
 	}
 
-	const {error} = await supabase.from('lists').insert({
-		user_id: user.id,
-		title,
-		description: description || null,
-		is_ranked: isRanked,
-	})
+	const {data: newList, error} = await supabase
+		.from('lists')
+		.insert({
+			user_id: user.id,
+			title,
+			description: description || null,
+			is_ranked: isRanked,
+		})
+		.select('id')
+		.single()
 
 	if (error) {
 		console.error('Error creating list:', error)
 		throw new Error('Failed to create list')
 	}
+
+	// Fire-and-forget: don't fail createList if side-effects fail
+	Promise.all([
+		insertActivity(supabase, user.id, 'list_created', newList.id, 'list'),
+		insertNotificationsForFollowers(supabase, user.id, 'new_list', newList.id, 'list'),
+	]).catch((e) => console.error('Activity/notification insert failed:', e))
 
 	// Fetch username for revalidation
 	const {data: profile} = await supabase
