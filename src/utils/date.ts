@@ -34,3 +34,28 @@ export const formatMonthYear = (value: string) => new Intl.DateTimeFormat('en-US
 	month: 'short',
 	year: 'numeric'
 }).format(new Date(value))
+
+/**
+ * Formats a timestamp into a compact relative time string (e.g., "now", "5m",
+ * "3h", "2d", "4w"). Falls back to an absolute short date for anything older
+ * than ~4 weeks. Intended for activity feeds and notification lists.
+ *
+ * @param value - An ISO timestamp string.
+ * @returns A short relative time label.
+ */
+export const formatRelativeTime = (value: string) => {
+	if (!value) return ''
+
+	const then = new Date(value).getTime()
+	if (Number.isNaN(then)) return ''
+
+	const seconds = Math.floor((Date.now() - then) / 1000)
+
+	if (seconds < 45) return 'now'
+	if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
+	if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`
+	if (seconds < 604800) return `${Math.floor(seconds / 86400)}d`
+	if (seconds < 2419200) return `${Math.floor(seconds / 604800)}w`
+
+	return formatDate(value)
+}
