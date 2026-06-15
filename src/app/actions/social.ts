@@ -2,6 +2,8 @@
 
 import {createClient} from '@/utils/supabase/server'
 import {revalidatePath} from 'next/cache'
+import {insertActivity} from '@/app/actions/activity'
+import {insertNotificationForUser} from '@/app/actions/notifications'
 
 /**
  * Follows a user.
@@ -32,6 +34,12 @@ export async function followUser(followingId: string) {
 		console.error('Error following user:', error)
 		throw new Error('Failed to follow user')
 	}
+
+	// Fire-and-forget: don't fail followUser if side-effects fail
+	Promise.all([
+		insertActivity(supabase, user.id, 'followed', followingId, 'follow'),
+		insertNotificationForUser(supabase, followingId, user.id, 'new_follow', followingId, 'follow'),
+	]).catch((e) => console.error('Activity/notification insert failed:', e))
 
 	// Fetch username for revalidation
 	const {data: profile} = await supabase
