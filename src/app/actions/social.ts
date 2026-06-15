@@ -2,6 +2,8 @@
 
 import {createClient} from '@/utils/supabase/server'
 import {revalidatePath} from 'next/cache'
+import {insertActivity} from '@/app/actions/activity'
+import {insertNotificationForUser} from '@/app/actions/notifications'
 
 /**
  * Follows a user.
@@ -32,6 +34,14 @@ export async function followUser(followingId: string) {
 		console.error('Error following user:', error)
 		throw new Error('Failed to follow user')
 	}
+
+	// Non-fatal side-effects: await so the writes complete before the action
+	// returns (serverless can drop unawaited promises). The helpers log their
+	// own errors, and allSettled never rejects, so followUser never fails here.
+	await Promise.allSettled([
+		insertActivity(supabase, user.id, 'followed', followingId, 'follow'),
+		insertNotificationForUser(supabase, followingId, user.id, 'new_follow', followingId, 'follow'),
+	])
 
 	// Fetch username for revalidation
 	const {data: profile} = await supabase

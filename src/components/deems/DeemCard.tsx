@@ -2,6 +2,7 @@ import {DeemWithDetails} from '@/app/actions/deem'
 import {DeemHeader} from './card/DeemHeader'
 import {DeemContent} from './card/DeemContent'
 import {DeemFooter} from './card/DeemFooter'
+import {CommentSection} from './comments/CommentSection'
 
 export function DeemCard({deem}: { deem: DeemWithDetails }) {
 	return (
@@ -10,6 +11,7 @@ export function DeemCard({deem}: { deem: DeemWithDetails }) {
 			<DeemHeader deem={deem}/>
 			<DeemContent deem={deem}/>
 			<DeemFooter deem={deem}/>
+			<CommentSection deemId={deem.id}/>
 		</div>
 	)
 }
