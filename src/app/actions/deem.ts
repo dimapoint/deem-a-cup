@@ -5,6 +5,8 @@ import type {Cafe, Deem, DeemInsert, Profile, Watchlist} from '@/types/database'
 import {revalidatePath} from 'next/cache'
 import {SupabaseClient} from '@supabase/supabase-js'
 import {parseCurrency, parseNumber, parseString, parseTags} from '@/utils/parsers'
+import {insertActivity} from '@/app/actions/activity'
+import {insertNotificationsForFollowers} from '@/app/actions/notifications'
 
 // --- Types ---
 
@@ -75,13 +77,14 @@ function extractDeemData(formData: FormData, userId: string): DeemInsert {
  * @param deemData - The Deem data to insert.
  * @throws Error if the insertion fails.
  */
-async function saveDeem(supabase: SupabaseClient, deemData: DeemInsert) {
-	const {error} = await supabase.from('deems').insert(deemData)
+async function saveDeem(supabase: SupabaseClient, deemData: DeemInsert): Promise<string> {
+	const {data, error} = await supabase.from('deems').insert(deemData).select('id').single()
 
 	if (error) {
 		console.error('Error logging coffee:', error)
 		throw new Error(error.message || 'Error saving visit')
 	}
+	return data.id
 }
 
 /**
@@ -187,7 +190,14 @@ export async function logCoffee(formData: FormData) {
 	const supabase = await createClient()
 	const user = await getUserOrThrow(supabase)
 	const deemData = extractDeemData(formData, user.id)
-	await saveDeem(supabase, deemData)
+	const deemId = await saveDeem(supabase, deemData)
+
+	// Fire-and-forget: don't fail logCoffee if side-effects fail
+	Promise.all([
+		insertActivity(supabase, user.id, 'deem', deemId, 'deem'),
+		insertNotificationsForFollowers(supabase, user.id, 'new_deem', deemId, 'deem'),
+	]).catch((e) => console.error('Activity/notification insert failed:', e))
+
 	revalidatePath('/')
 }
 
