@@ -202,3 +202,44 @@ export interface ProfileInsert {
 	website?: string
 	favorite_cafe_ids?: string[] | null
 }
+
+export interface Activity {
+	id: string
+	actor_id: string
+	verb: 'deem' | 'list_created' | 'list_updated' | 'followed' | 'photo_uploaded'
+	object_id: string
+	object_type: 'deem' | 'list' | 'follow' | 'photo'
+	created_at: string
+}
+
+export interface ActivityInsert {
+	actor_id: string
+	verb: Activity['verb']
+	object_id: string
+	object_type: Activity['object_type']
+}
+
+export interface DeemComment {
+	id: string
+	deem_id: string
+	user_id: string
+	content: string
+	created_at: string
+}
+
+export interface DeemCommentInsert {
+	deem_id: string
+	user_id: string
+	content: string
+}
+
+export interface Notification {
+	id: string
+	user_id: string
+	actor_id: string
+	type: 'new_deem' | 'new_comment' | 'new_follow' | 'new_photo' | 'new_list'
+	object_id: string
+	object_type: string
+	read: boolean
+	created_at: string
+}
