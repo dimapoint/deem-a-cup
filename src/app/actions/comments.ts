@@ -27,15 +27,19 @@ export async function addDeemComment(deemId: string, content: string): Promise<v
     .eq('id', deemId)
     .single()
 
+  // Non-fatal: the comment is already committed, so a failed notification
+  // must not surface an error for an otherwise-successful comment.
   if (deem && deem.user_id !== user.id) {
-    await insertNotificationForUser(
-      supabase,
-      deem.user_id,
-      user.id,
-      'new_comment',
-      deemId,
-      'deem'
-    )
+    await Promise.allSettled([
+      insertNotificationForUser(
+        supabase,
+        deem.user_id,
+        user.id,
+        'new_comment',
+        deemId,
+        'deem'
+      ),
+    ])
   }
 
   revalidatePath('/')

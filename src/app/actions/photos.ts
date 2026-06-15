@@ -78,11 +78,13 @@ export async function uploadCafePhoto(formData: FormData) {
 		throw new Error('Failed to save photo info')
 	}
 
-	// Fire-and-forget: don't fail uploadCafePhoto if side-effects fail
-	Promise.all([
+	// Non-fatal side-effects: await so the writes complete before the action
+	// returns (serverless can drop unawaited promises). The helpers log their
+	// own errors, and allSettled never rejects, so the upload never fails here.
+	await Promise.allSettled([
 		insertActivity(supabase, user.id, 'photo_uploaded', photoRow.id, 'photo'),
 		insertNotificationsForFollowers(supabase, user.id, 'new_photo', photoRow.id, 'photo'),
-	]).catch((e) => console.error('Activity/notification insert failed:', e))
+	])
 
 	revalidatePath(`/cafe/${cafeId}`)
 }

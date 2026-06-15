@@ -792,7 +792,8 @@ CREATE POLICY "Users can read their own notifications"
 DROP POLICY IF EXISTS "Users can mark their notifications as read" ON notifications;
 CREATE POLICY "Users can mark their notifications as read"
   ON notifications FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can delete their own notifications" ON notifications;
 CREATE POLICY "Users can delete their own notifications"

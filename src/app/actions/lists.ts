@@ -46,11 +46,13 @@ export async function createList(formData: FormData): Promise<void> {
 		throw new Error('Failed to create list')
 	}
 
-	// Fire-and-forget: don't fail createList if side-effects fail
-	Promise.all([
+	// Non-fatal side-effects: await so the writes complete before the action
+	// returns (serverless can drop unawaited promises). The helpers log their
+	// own errors, and allSettled never rejects, so createList never fails here.
+	await Promise.allSettled([
 		insertActivity(supabase, user.id, 'list_created', newList.id, 'list'),
 		insertNotificationsForFollowers(supabase, user.id, 'new_list', newList.id, 'list'),
-	]).catch((e) => console.error('Activity/notification insert failed:', e))
+	])
 
 	// Fetch username for revalidation
 	const {data: profile} = await supabase

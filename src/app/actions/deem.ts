@@ -192,11 +192,13 @@ export async function logCoffee(formData: FormData) {
 	const deemData = extractDeemData(formData, user.id)
 	const deemId = await saveDeem(supabase, deemData)
 
-	// Fire-and-forget: don't fail logCoffee if side-effects fail
-	Promise.all([
+	// Non-fatal side-effects: await so the writes complete before the action
+	// returns (serverless can drop unawaited promises). The helpers log their
+	// own errors, and allSettled never rejects, so logCoffee never fails here.
+	await Promise.allSettled([
 		insertActivity(supabase, user.id, 'deem', deemId, 'deem'),
 		insertNotificationsForFollowers(supabase, user.id, 'new_deem', deemId, 'deem'),
-	]).catch((e) => console.error('Activity/notification insert failed:', e))
+	])
 
 	revalidatePath('/')
 }

@@ -35,11 +35,13 @@ export async function followUser(followingId: string) {
 		throw new Error('Failed to follow user')
 	}
 
-	// Fire-and-forget: don't fail followUser if side-effects fail
-	Promise.all([
+	// Non-fatal side-effects: await so the writes complete before the action
+	// returns (serverless can drop unawaited promises). The helpers log their
+	// own errors, and allSettled never rejects, so followUser never fails here.
+	await Promise.allSettled([
 		insertActivity(supabase, user.id, 'followed', followingId, 'follow'),
 		insertNotificationForUser(supabase, followingId, user.id, 'new_follow', followingId, 'follow'),
-	]).catch((e) => console.error('Activity/notification insert failed:', e))
+	])
 
 	// Fetch username for revalidation
 	const {data: profile} = await supabase
